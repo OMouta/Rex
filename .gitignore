@@ -2,7 +2,8 @@
 /*.rbxlx.lock
 /*.rbxl.lock
 /sourcemap.json
-/.github/*
+
+/*/copilot-instructions.md
 
 /.node_modules
 /.vscode

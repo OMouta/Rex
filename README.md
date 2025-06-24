@@ -1,16 +1,13 @@
 <div align="center">
 
-# Rex UI Framework
-
 ![Rex Banner](assets/RexBannerBackground.png)
 
-## A modern, declarative UI framework for Roblox
+## The Reactive Roblox Framework
 
-Bringing React/VueJs-inspired patterns to Roblox development
+Build reactive, component-based user interfaces with Rex—a declarative UI framework inspired by React/VueJs patterns, designed specifically for Roblox and Luau.
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/your-username/rex)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/OMouta/Rex)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Roblox](https://img.shields.io/badge/platform-Roblox-red.svg)](https://roblox.com)
 
 </div>
 
@@ -302,15 +299,15 @@ Rex is [MIT licensed](LICENSE).
 ## 🔮 Roadmap
 
 - [ ] **v0.2.0**: Dev tools and debugging utilities  
-- [ ] **v0.3.0**: Server-side rendering capabilities
+...
 - [ ] **v1.0.0**: Stable API and comprehensive documentation
 
 ---
 
 <div align="center">
 
-## Built with ❤️ by OMouta and the Community
+## Built with ❤️ by OMouta
 
-[Documentation](https://rex.tigas.dev) • [Examples](./src/Client) • [API Reference](https://rex.tigas.dev/api)
+[Documentation](https://rex.tigas.dev) • [Examples](https://rex.tigas.dev/docs/0.1.0/examples/simple_counter) • [API Reference](https://rex.tigas.dev/docs/0.1.0/api_reference/state)
 
 </div>
