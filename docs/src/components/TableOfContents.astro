@@ -1,0 +1,29 @@
+---
+export interface Props {
+  headings: any[];
+}
+
+const { headings } = Astro.props;
+---
+
+<div class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-hidden flex flex-col">
+  <h4 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex-shrink-0">
+    On this page
+  </h4>
+  <nav class="overflow-y-auto flex-1">
+    <ul class="space-y-2 text-sm border-l border-zinc-800 pb-4">
+      {headings.map((heading) => (
+        <li>
+          <a
+            href={`#${heading.slug}`}
+            class={`block py-1 text-zinc-500 hover:text-zinc-300 transition-colors border-l-2 border-transparent hover:border-zinc-600 leading-5 ${
+              heading.depth === 2 ? 'pl-4' : heading.depth === 3 ? 'pl-6' : 'pl-8'
+            }`}
+          >
+            <span class="line-clamp-2">{heading.text}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</div>

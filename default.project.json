@@ -1,0 +1,22 @@
+{
+  "name": "Rex",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Rex": {
+        "$path": "src/Rex"
+      }
+    },
+
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$path": "src/Client"
+      }
+    }
+  }
+}

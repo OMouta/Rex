@@ -1,0 +1,66 @@
+---
+export interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+}
+
+const { title, description = "A modern, declarative UI framework for Roblox. Bringing React/VueJs-inspired patterns to Roblox development.", image = "/RexBannerBackground.png" } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/webp" href="/RexLogoColor.webp" />
+    <meta name="generator" content={Astro.generator} />
+    
+    <!-- Primary Meta Tags -->
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(image, Astro.url)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Rex UI Framework" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={new URL(image, Astro.url)} />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  </head>
+  <body class="h-full bg-zinc-950 text-zinc-400 font-sans antialiased">
+    <slot />
+    <style>
+      /* Line clamp utility for text truncation */
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      
+      /* Scroll padding to account for fixed header when jumping to anchors */
+      html {
+        scroll-padding-top: 5rem; /* 80px to account for header height */
+      }
+      
+      /* Smooth scrolling for anchor links */
+      html {
+        scroll-behavior: smooth;
+      }
+    </style>
+  </body>
+</html>

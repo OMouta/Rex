@@ -1,0 +1,75 @@
+---
+import Layout from './Layout.astro';
+import Header from '../components/Header.astro';
+import Sidebar from '../components/Sidebar.astro';
+import TableOfContents from '../components/TableOfContents.astro';
+import Footer from '../components/Footer.astro';
+import { versions } from '../content/config';
+
+// Define type for version info
+interface VersionInfo {
+  label: string;
+  status: string;
+  statusLabel: string;
+  isDefault?: boolean;
+}
+
+export interface Props {
+  title: string;
+  description?: string;
+  headings?: any[];
+  version?: string;
+}
+
+const { title, description, headings = [], version } = Astro.props;
+
+// Get the selected version from props first, then URL parameter, then default
+const urlParams = new URL(Astro.request.url).searchParams;
+const selectedVersion = version || urlParams.get('version') || 
+  Object.entries(versions).find(([_, info]) => (info as VersionInfo).isDefault)?.[0] || 
+  'v1.0';
+
+// Get version info
+const versionInfo = (versions as Record<string, VersionInfo>)[selectedVersion] || { 
+  label: selectedVersion, 
+  status: 'stable', 
+  statusLabel: 'Stable' 
+};
+---
+
+<Layout title={`${title} | Rex${versionInfo.status !== 'stable' ? ` (${versionInfo.statusLabel})` : ''}`} description={description}>
+  <div class="min-h-screen bg-zinc-950 flex flex-col">
+    <Header currentVersion={selectedVersion} />
+    <div class="flex flex-1">
+      <Sidebar selectedVersion={selectedVersion} />
+      <main class="flex-1 lg:max-w-none">
+        <div class="flex">
+          <article class="flex-1 px-8 py-8 max-w-4xl prose prose-lg mx-auto mb-28">
+            <slot />
+          </article>
+          {headings.length > 0 && (
+            <aside class="hidden xl:block w-64 px-6 py-8">
+              <TableOfContents headings={headings} />
+            </aside>
+          )}
+        </div>
+      </main>
+    </div>
+    <Footer />
+  </div>
+</Layout>
+
+<script>
+  // Mobile menu toggle
+  document.addEventListener('DOMContentLoaded', () => {
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (mobileMenuButton && sidebar) {
+      mobileMenuButton.addEventListener('click', () => {
+        sidebar.classList.toggle('hidden');
+        sidebar.classList.toggle('lg:block');
+      });
+    }
+  });
+</script>

@@ -1,0 +1,317 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { Code } from 'astro:components';
+import { DOCS_LINKS } from '../utils/docs-links';
+---
+
+<Layout 
+title="Rex - The Reactive Roblox Framework"
+description="Build reactive, component-based user interfaces with Rex—a declarative UI framework inspired by React/VueJs patterns, designed specifically for Roblox and Luau."
+>
+  <div class="min-h-screen bg-zinc-950">
+    <Header />
+    
+    <!-- Hero Section -->
+    <main class="relative h-[70vh] flex items-center justify-center text-center text-white">
+      <!-- Background Pattern -->
+      <div class="absolute inset-0 bg-grid-pattern-dark"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-zinc-950 via-zinc-900/50 to-zinc-950"></div>
+      
+      <div class="relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+          <div class="text-center">
+            <!-- Main Heading -->
+            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight">
+              <span class="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+                The Reactive Roblox Framework
+              </span>
+            </h1>
+            
+            <!-- Subtitle -->
+            <div class="mt-8 max-w-5xl mx-auto">
+              <p class="text-lg sm:text-xl text-zinc-400 leading-relaxed">
+                Build reactive, component-based user interfaces with Rex—a declarative UI framework inspired by React/VueJs patterns, designed specifically for Roblox and Luau.
+              </p>
+            </div>
+            
+            <!-- CTA Buttons -->
+            <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                href={DOCS_LINKS.introduction}
+                class="inline-flex items-center px-8 py-3 bg-primary-500 text-white font-semibold rounded-lg hover:bg-primary-600 transition-colors border border-primary-600"
+                > Get started </a>
+                <a
+                href={DOCS_LINKS.quickStart}
+                class="inline-flex items-center px-8 py-3 bg-zinc-800 text-white font-semibold rounded-lg hover:bg-zinc-700 transition-colors border border-zinc-600"
+                > Quick Start </a>
+                <a
+                href={DOCS_LINKS.apiReference.state}
+                class="inline-flex items-center px-8 py-3 bg-zinc-800 text-white font-semibold rounded-lg hover:bg-zinc-700 transition-colors border border-zinc-600"
+                > See API </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <!-- Why Section -->
+    <section class="relative py-20 bg-zinc-900/50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl sm:text-4xl font-bold text-zinc-200 mb-4">
+            Why Rex?
+          </h2>
+          <p class="text-xl text-zinc-400 max-w-2xl mx-auto">
+            Rex brings modern web development patterns to Roblox, making UI development faster, more maintainable, and less error-prone.
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="group bg-zinc-900 p-8 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-colors">
+            <div class="w-12 h-12 bg-primary-500/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-primary-500/20 transition-colors">
+              <svg class="w-6 h-6 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-zinc-200 mb-3">Lightning Fast</h3>
+            <p class="text-zinc-400 leading-relaxed">
+              Rex uses efficient reconciliation algorithms and batched updates to ensure optimal performance. Only elements that actually changed are updated, providing smooth 60+ FPS experiences even with complex UIs.
+            </p>
+          </div>
+          
+          <div class="group bg-zinc-900 p-8 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-colors">
+            <div class="w-12 h-12 bg-secondary-500/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-secondary-500/20 transition-colors">
+              <svg class="w-6 h-6 text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-zinc-200 mb-3">Declarative & Reactive</h3>
+            <p class="text-zinc-400 leading-relaxed">
+              Build your UI using a simple, declarative syntax with automatic reactivity. State changes automatically update the UI without manual intervention, eliminating common bugs.
+            </p>
+          </div>
+          
+          <div class="group bg-zinc-900 p-8 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-colors">
+            <div class="w-12 h-12 bg-gradient-to-br from-primary-500/10 to-secondary-500/10 rounded-lg flex items-center justify-center mb-6 group-hover:from-primary-500/20 group-hover:to-secondary-500/20 transition-colors">
+              <svg class="w-6 h-6 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-zinc-200 mb-3">Zero Dependencies</h3>
+            <p class="text-zinc-400 leading-relaxed">
+              Rex is completely self-contained with no external dependencies. Built specifically for Luau and Roblox, it integrates seamlessly into any project without bloating your game.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Syntax Showcase -->
+    <section class="py-20 bg-zinc-950">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-3xl sm:text-4xl font-bold text-zinc-200 mb-8 text-center">
+        Simple, Declarative Syntax
+      </h2>
+      <p class="text-zinc-400 my-4 text-center">
+        Rex lets you build UI with readable, maintainable code—no complex hierarchies or boilerplate.
+      </p>
+      <div class="flex flex-col lg:flex-row gap-12 mt-8 items-start justify-center">
+        <div class="prose text-zinc-300 grow max-w-xl w-full">
+        <Code
+          code={`local Rex = require(game.ReplicatedStorage.Rex)
+
+local function Counter()
+  local count = Rex.useState(0)
+  
+  return Rex("Frame") {
+    Size = UDim2.fromScale(1, 1),
+    BackgroundColor3 = Color3.fromRGB(30, 30, 40),
+    children = {
+      Rex("TextLabel") {
+        Text = count:map(function(value)
+          return "Count: " .. tostring(value)
+        end),
+        Size = UDim2.new(1, 0, 0, 50),
+        TextColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1
+      },
+      Rex("TextButton") {
+        Text = "Increment",
+        Size = UDim2.fromOffset(120, 40),
+        Position = UDim2.new(0.5, -60, 0, 60),
+        BackgroundColor3 = Color3.fromRGB(70, 130, 255),
+        onClick = function()
+          count:update(function(current) 
+            return current + 1 
+          end)
+        end
+      }
+    }
+  }
+end
+
+Rex.render(Counter, game.Players.LocalPlayer.PlayerGui)`}
+          lang="lua"
+          theme="dark-plus"
+        />
+        </div>
+        <div class="max-w-md w-full flex-shrink-0 bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-zinc-200 mb-4">How it works</h3>
+        <ul class="space-y-4 text-zinc-400 text-base">
+          <li>
+          <span class="font-semibold text-primary-400">Components:</span> Functions that return Rex elements, promoting reusability and organization.
+          </li>
+          <li>
+          <span class="font-semibold text-primary-400">State:</span> <code>Rex.useState</code> creates reactive values that automatically update the UI.
+          </li>
+          <li>
+          <span class="font-semibold text-primary-400">Reactive Properties:</span> Use <code>:map()</code> to derive values from state that update automatically.
+          </li>
+          <li>
+          <span class="font-semibold text-primary-400">Event Handling:</span> <code>onClick</code> and other events use camelCase naming for consistency.
+          </li>
+          <li>
+          <span class="font-semibold text-primary-400">Rendering:</span> <code>Rex.render</code> mounts your component tree to Roblox's GUI system.
+          </li>
+        </ul>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <!-- Key Features Section -->
+    <section class="py-20 bg-zinc-900/50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl sm:text-4xl font-bold text-zinc-200 mb-8 text-center">
+          Key Features
+        </h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div class="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+            <h3 class="text-lg font-semibold text-zinc-200 mb-3">🎯 Type Safety</h3>
+            <p class="text-zinc-400 text-sm">
+              Built for Luau with comprehensive type definitions and intellisense support.
+            </p>
+          </div>
+          
+          <div class="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+            <h3 class="text-lg font-semibold text-zinc-200 mb-3">🔄 Automatic Updates</h3>
+            <p class="text-zinc-400 text-sm">
+              UI automatically stays in sync with your application state through reactive bindings.
+            </p>
+          </div>
+          
+          <div class="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+            <h3 class="text-lg font-semibold text-zinc-200 mb-3">🧩 Component System</h3>
+            <p class="text-zinc-400 text-sm">
+              Build reusable components with props, state, and lifecycle hooks just like React.
+            </p>
+          </div>
+          
+          <div class="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+            <h3 class="text-lg font-semibold text-zinc-200 mb-3">⚡ Smart Reconciliation</h3>
+            <p class="text-zinc-400 text-sm">
+              Efficient key-based diffing ensures only necessary elements are created, updated, or removed.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modern Patterns Section -->
+    <section class="py-20 bg-zinc-950">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl sm:text-4xl font-bold text-zinc-200 mb-8 text-center">
+          Modern Development Patterns
+        </h2>
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h3 class="text-2xl font-semibold text-zinc-200 mb-4">Context & State Management</h3>
+            <p class="text-zinc-400 mb-6">
+              Share state across your component tree with Rex's Context API. No prop drilling, just clean, maintainable code.
+            </p>
+            <div class="space-y-3">
+              <div class="flex items-center gap-3">
+                <div class="w-2 h-2 bg-primary-500 rounded-full"></div>
+                <span class="text-zinc-300">Global state management with Context</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-2 h-2 bg-primary-500 rounded-full"></div>
+                <span class="text-zinc-300">Computed values with automatic dependency tracking</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-2 h-2 bg-primary-500 rounded-full"></div>
+                <span class="text-zinc-300">Async state handling with loading and error states</span>
+              </div>
+            </div>
+          </div>
+          <div class="prose text-zinc-300 grow max-w-xl w-full">
+            <Code
+              code={`-- Global theme context
+local ThemeContext = Rex.createContext("dark")
+
+local function App()
+  local theme = Rex.useState("dark")
+  
+  return Rex.Provider {
+    context = ThemeContext,
+    value = theme,
+    children = {
+      Header(),
+      MainContent(),
+      Footer()
+    }
+  }
+end
+
+-- Use anywhere in the tree
+local function ThemedButton()
+  local theme = Rex.useContext(ThemeContext)
+  
+  return Rex("TextButton") {
+    BackgroundColor3 = theme:map(function(t)
+      return t == "dark" 
+        and Color3.fromRGB(70, 130, 255)
+        or Color3.fromRGB(240, 240, 240)
+    end)
+  }
+end`}
+              lang="lua"
+              theme="dark-plus"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="py-20 bg-gradient-to-br from-primary-500 to-secondary-500 text-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl sm:text-4xl font-bold mb-4">
+          Ready to modernize your Roblox UI?
+        </h2>
+        <p class="text-lg sm:text-xl mb-8 max-w-2xl mx-auto">
+          Join developers who've already made the switch to Rex for cleaner, more maintainable, and more powerful user interfaces.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href={DOCS_LINKS.introduction}
+            class="inline-flex items-center px-8 py-3 bg-white text-zinc-900 font-semibold rounded-lg hover:bg-zinc-100 transition-colors border border-zinc-200"
+          >
+            Get Started
+          </a>
+          <a
+            href={DOCS_LINKS.quickStart}
+            class="inline-flex items-center px-8 py-3 bg-transparent text-white font-semibold rounded-lg hover:bg-white/10 transition-colors border border-white/20"
+          >
+            Quick Start Guide
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <Footer />
+  </div>
+</Layout>

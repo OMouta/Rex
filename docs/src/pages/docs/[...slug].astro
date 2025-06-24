@@ -1,0 +1,190 @@
+---
+import { getCollection } from 'astro:content';
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { versions } from '../../content/config';
+
+// Define type for version info  
+interface VersionInfo {
+  label: string;
+  status: string;
+  statusLabel: string;
+  isDefault?: boolean;
+}
+
+export async function getStaticPaths() {
+  const docs = await getCollection('docs');
+  
+  // Create paths for each doc
+  const paths = docs.map(doc => {
+    // Extract version from the doc slug if it starts with a version prefix (like v1.0/)
+    let docVersion = '';
+    const slugParts = doc.slug.split('/');
+    if (slugParts[0] && slugParts[0].startsWith('v')) {
+      docVersion = slugParts[0];
+    }
+    
+    // Use the version from frontmatter or directory structure
+    const version = doc.data.version || docVersion;
+    
+    return {
+      params: { slug: doc.slug },
+      props: { doc, version }
+    };
+  });
+  
+  // Add additional paths for user-friendly URLs
+  // Astro converts v1.0 folder to v10 slug, but users expect v1.0 in URL
+  const additionalPaths = docs.map(doc => {
+    const version = doc.data.version;
+    if (version && doc.slug.includes('/')) {
+      // Create a user-friendly slug like "v1.0/examples" from "v10/examples"
+      const parts = doc.slug.split('/');
+      const friendlySlug = `${version}/${parts.slice(1).join('/')}`;
+      
+      return {
+        params: { slug: friendlySlug },
+        props: { doc, version }
+      };
+    }
+    return null;
+  }).filter(Boolean);
+  
+  return [...paths, ...additionalPaths];
+}
+
+const { doc, version } = Astro.props;
+const { Content, headings } = await doc.render();
+
+// Get version from URL parameter if present, otherwise use the prop version
+const urlParams = new URL(Astro.request.url).searchParams;
+const selectedVersion = urlParams.get('version') || version;
+---
+
+<DocsLayout 
+  title={doc.data.title} 
+  description={doc.data.description} 
+  headings={headings} 
+  version={selectedVersion}
+>
+  <div class="prose prose-invert prose-lg max-w-none">
+    <div class="mb-8 pb-8 border-b border-zinc-800">
+      <h1 class="text-4xl font-bold text-zinc-100 mb-4 tracking-tight">{doc.data.title}</h1>
+      <p class="text-xl text-zinc-400 leading-relaxed">{doc.data.description}</p>
+      <div class="mt-6 flex items-center space-x-6 text-sm text-zinc-500">
+        {doc.data.lastUpdated && (
+          <div class="flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Last updated: {doc.data.lastUpdated.toLocaleDateString()}
+          </div>
+        )}
+        {doc.data.version && (
+          <div class="flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            Version: {doc.data.version || version}
+          </div>
+        )}
+      </div>
+    </div>
+    <Content />
+  </div>
+</DocsLayout>
+
+<style>
+  .prose {
+    @apply text-zinc-300;
+  }
+
+  .prose code {
+    @apply bg-zinc-800 text-primary-400 font-mono px-2 py-1 rounded-md border border-zinc-700
+  }
+  
+  .astro-code {
+    @apply bg-zinc-900 border border-zinc-800 rounded-lg overflow-x-auto p-6 my-6;
+  }
+  
+  .astro-code code {
+    background: none !important;
+    background-color: transparent !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+  
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4,
+  .prose h5,
+  .prose h6 {
+    @apply text-zinc-100 font-bold;
+  }
+  
+  .prose h2 {
+    @apply text-2xl mt-12 mb-6 pb-3 border-b border-zinc-800;
+  }
+  
+  .prose h3 {
+    @apply text-xl mt-8 mb-4;
+  }
+  
+  .prose h4 {
+    @apply text-lg mt-6 mb-3;
+  }
+  
+  .prose a {
+    @apply text-primary-400 hover:text-primary-300 transition-colors no-underline;
+  }
+  
+  .prose a:hover {
+    @apply underline;
+  }
+  
+  .prose code {
+    @apply bg-zinc-800 text-primary-400 px-2 py-1 rounded-md text-sm font-mono border border-zinc-700;
+  }
+  
+  .prose pre {
+    @apply bg-zinc-900 border border-zinc-800 rounded-lg overflow-x-auto p-6 my-6;
+  }
+  
+  .prose blockquote {
+    @apply border-l-4 border-primary-500 bg-zinc-900 p-6 rounded-r-lg my-6 not-italic;
+  }
+  
+  .prose blockquote p {
+    @apply text-zinc-300 mb-0;
+  }
+  
+  .prose table {
+    @apply bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden my-6;
+  }
+  
+  .prose thead {
+    @apply bg-zinc-800;
+  }
+  
+  .prose th {
+    @apply text-zinc-200 font-semibold px-6 py-3 text-left;
+  }
+  
+  .prose td {
+    @apply px-6 py-3 border-t border-zinc-800 text-zinc-300;
+  }
+  
+  .prose ul,
+  .prose ol {
+    @apply text-zinc-300;
+  }
+  
+  .prose li {
+    @apply mb-2;
+  }
+  
+  .prose strong {
+    @apply text-zinc-200 font-semibold;
+  }
+</style>
