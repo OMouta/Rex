@@ -128,7 +128,14 @@ const versionInfo = (versions as Record<string, VersionInfo>)[selectedVersion] |
                 href += `?${urlParams.toString()}`;
               }
               
-              const isActive = currentPath === href.split('?')[0];
+              // More robust active state detection for production
+              const cleanHref = href.split('?')[0];
+              const cleanCurrentPath = currentPath.endsWith('/') ? currentPath.slice(0, -1) : currentPath;
+              const cleanHrefPath = cleanHref.endsWith('/') ? cleanHref.slice(0, -1) : cleanHref;
+              
+              const isActive = cleanCurrentPath === cleanHrefPath || 
+                             cleanCurrentPath === cleanHref || 
+                             currentPath === cleanHref;
               return (
                 <li>
                   <a

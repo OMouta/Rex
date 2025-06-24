@@ -445,10 +445,10 @@ end
 
 Now that you understand state management, you're ready to:
 
-- Try the [Quick Start Guide](/0.1.0/quick_start_guide) for hands-on practice
-- Learn about [Component Lifecycle](/0.1.0/core_concepts/lifecycle_hooks)
-- Explore [Advanced State Patterns](/0.1.0/advanced_features/deep_reactivity)
-- Understand [Context](/0.1.0/core_concepts/contexts) for sharing state across components
+- Try the [Quick Start Guide](./quick_start_guide) for hands-on practice
+- Learn about [Component Lifecycle](./core_concepts/lifecycle_hooks)
+- Explore [Advanced State Patterns](./advanced_features/deep_reactivity)
+- Understand [Context](./core_concepts/contexts) for sharing state across components
 
 ## Common Questions
 
@@ -462,7 +462,7 @@ A: Absolutely! Components can have as many state objects as needed. Group relate
 
 **Q: How do I share state between components?**
 
-A: Use [Context](/0.1.0/core_concepts/contexts) for sharing state across multiple components, or pass state as props for parent-child communication.
+A: Use [Context](./core_concepts/contexts) for sharing state across multiple components, or pass state as props for parent-child communication.
 
 **Q: Why isn't my computed value updating?**
 

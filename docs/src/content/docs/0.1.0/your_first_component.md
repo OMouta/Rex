@@ -20,7 +20,7 @@ By the end of this tutorial, you'll have created a `LikeButton` component that:
 
 ## Prerequisites
 
-Make sure you've completed the [Installation](/0.1.0/installation) guide and have Rex set up in your project.
+Make sure you've completed the [Installation](./installation) guide and have Rex set up in your project.
 
 ## Step 1: Create the Component File
 
@@ -354,9 +354,9 @@ Congratulations! You've created your first Rex component. You've learned:
 
 Now that you understand the basics, you're ready to:
 
-- Learn more about [State Management Basics](/0.1.0/state_management_basics)
-- Explore [Core Concepts](/0.1.0/core_concepts/state) in depth
-- Try the [Quick Start Guide](/0.1.0/quick_start_guide) for more examples
+- Learn more about [State Management Basics](./state_management_basics)
+- Explore [Core Concepts](./core_concepts/state) in depth
+- Try the [Quick Start Guide](./quick_start_guide) for more examples
 - Build more complex components with multiple children and layouts
 
 ## Common Issues and Solutions
@@ -376,4 +376,4 @@ Now that you understand the basics, you're ready to:
 - Use `useComputed` for expensive calculations
 - Avoid creating new functions in render - define them outside or use callbacks
 
-Ready to continue your Rex journey? Head to [State Management Basics](/0.1.0/state_management_basics) next!
+Ready to continue your Rex journey? Head to [State Management Basics](./state_management_basics) next!
