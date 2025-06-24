@@ -4,7 +4,7 @@
 
 If you discover a security vulnerability in Rex, **please do not open a public issue**. Instead, report it privately to the maintainers:
 
-- Email: [YOUR_EMAIL_HERE]
+- Email: contact@moutaz.lol
 
 We will respond as quickly as possible and work with you to resolve the issue. Responsible disclosure is appreciated.
 
