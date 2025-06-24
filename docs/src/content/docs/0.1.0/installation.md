@@ -11,50 +11,18 @@ This guide will walk you through installing Rex and setting up your development 
 
 ## Installation Methods
 
-### Method 1: Roblox Toolbox (Recommended)
-
-The easiest way to get Rex into your project:
-
-1. Open Roblox Studio
-2. Navigate to the **Toolbox** (View → Toolbox)
-3. Search for "Rex UI Framework"
-4. Click the Rex model to insert it into your workspace
-5. Move the Rex module from Workspace to **ReplicatedStorage**
-
-### Method 2: GitHub Releases
+### Method 1: GitHub Releases
 
 For the latest version or specific releases:
 
-1. Visit the [Rex GitHub releases page](https://github.com/your-org/rex/releases)
+1. Visit the [Rex GitHub releases page](https://github.com/OMouta/Rex/releases)
 2. Download the latest `.rbxm` file
 3. In Roblox Studio, right-click **ReplicatedStorage**
 4. Select **Insert from File** and choose the downloaded file
 
-### Method 3: Rojo Workflow (Advanced)
+### Method 2: Rojo with wally (soon)
 
-For developers using Rojo and version control:
-
-1. Clone the Rex repository:
-
-   ```bash
-   git clone https://github.com/your-org/rex.git
-   cd rex
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. Build and sync with Rojo:
-
-   ```bash
-   rojo build -o rex.rbxl
-   rojo serve
-   ```
-
-4. Connect Roblox Studio to the Rojo server
+Rex will be added to wally as soon as possible
 
 ## Project Structure
 
@@ -72,9 +40,6 @@ ReplicatedStorage/
     State.luau              -- State management
     Props.luau              -- Property handling
     Renderer.luau           -- Rendering system
-  Shared/                    -- Your shared modules (optional)
-    Components/              -- Reusable components
-    Utils/                   -- Utility functions
 ```
 
 ## Basic Setup

@@ -96,17 +96,17 @@ Rex isn't just a framework—it's a modern approach to building maintainable, sc
 
 Ready to start building with Rex? Follow this learning path:
 
-1. **[Installation](/0.1.0/installation)** - Set up Rex in your project
-2. **[Basic Component Tutorial](/0.1.0/basic_component_tutorial)** - Create your first interactive component in 5 minutes
-3. **[Your First Component](/0.1.0/your_first_component)** - Build a complete like button with advanced features
-4. **[State Management Basics](/0.1.0/state_management_basics)** - Master Rex's reactive state system
-5. **[Quick Start Guide](/0.1.0/quick_start_guide)** - Build a full todo app in 10 minutes
+1. **[Installation](./installation)** - Set up Rex in your project
+2. **[Basic Component Tutorial](./basic_component_tutorial)** - Create your first interactive component in 5 minutes
+3. **[Your First Component](./your_first_component)** - Build a complete like button with advanced features
+4. **[State Management Basics](./state_management_basics)** - Master Rex's reactive state system
+5. **[Quick Start Guide](./quick_start_guide)** - Build a full todo app in 10 minutes
 
 ### Next Steps
 
 After completing the getting started guides, explore:
 
-- **[Core Concepts](/0.1.0/core_concepts/state)** - Deep dive into Rex's architecture
-- **[Examples](/0.1.0/examples/simple_counter)** - Real-world component examples  
-- **[API Reference](/0.1.0/api_reference/state)** - Complete API documentation
-- **[Advanced Features](/0.1.0/advanced_features/memoization)** - Performance and complex patterns
+- **[Core Concepts](./core_concepts/state)** - Deep dive into Rex's architecture
+- **[Examples](./examples/simple_counter)** - Real-world component examples  
+- **[API Reference](./api_reference/state)** - Complete API documentation
+- **[Advanced Features](./advanced_features/memoization)** - Performance and complex patterns
