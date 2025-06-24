@@ -115,7 +115,7 @@ local function SearchBox()
                 print("Search submitted:", searchText:get())
             end
         end
-    }
+    end
 end
 ```
 
@@ -151,7 +151,7 @@ local function Counter()
                 end
             }
         }
-    }
+    end
 end
 ```
 
@@ -182,7 +182,7 @@ local function ConditionalButton()
                 end
             end or nil
         end)
-    }
+    end
 end
 ```
 
@@ -231,6 +231,8 @@ end
 
 Rex automatically maps camelCase event names to Roblox events:
 
+### Core Events
+
 | Rex Event | Roblox Event | Description |
 |-----------|--------------|-------------|
 | `onClick` | `MouseButton1Click` | Left mouse button click |
@@ -243,107 +245,298 @@ Rex automatically maps camelCase event names to Roblox events:
 | `onTextChanged` | `Changed` | Text content changes (TextBox) |
 | `onActivated` | `Activated` | Button activation (Enter key, etc.) |
 
-## Advanced Event Patterns
+### Mouse Events
 
-### Form Handling
+| Rex Event | Roblox Event | Description |
+|-----------|--------------|-------------|
+| `onMouseEnter` | `MouseEnter` | Alternative to onHover |
+| `onMouseLeave` | `MouseLeave` | Alternative to onLeave |
+| `onMouseMoved` | `MouseMoved` | Mouse moves over element |
+| `onMouseWheelForward` | `MouseWheelForward` | Mouse wheel scrolled forward |
+| `onMouseWheelBackward` | `MouseWheelBackward` | Mouse wheel scrolled backward |
+| `onMouseDown` | `MouseButton1Down` | Left mouse button pressed down |
+| `onMouseUp` | `MouseButton1Up` | Left mouse button released |
+| `onRightMouseDown` | `MouseButton2Down` | Right mouse button pressed down |
+| `onRightMouseUp` | `MouseButton2Up` | Right mouse button released |
+| `onDoubleClick` | `MouseButton1DoubleClick` | Double-click detected |
+
+### Touch Events
+
+| Rex Event | Roblox Event | Description |
+|-----------|--------------|-------------|
+| `onTouchTap` | `TouchTap` | Touch tap gesture |
+| `onTouchLongPress` | `TouchLongPress` | Touch long press gesture |
+| `onTouchPan` | `TouchPan` | Touch pan/drag gesture |
+| `onTouchPinch` | `TouchPinch` | Touch pinch gesture |
+| `onTouchRotate` | `TouchRotate` | Touch rotate gesture |
+
+### Input Events
+
+| Rex Event | Roblox Event | Description |
+|-----------|--------------|-------------|
+| `onInputBegan` | `InputBegan` | Input begins (keyboard, gamepad, etc.) |
+| `onInputChanged` | `InputChanged` | Input changes |
+| `onInputEnded` | `InputEnded` | Input ends |
+
+### Selection Events
+
+| Rex Event | Roblox Event | Description |
+|-----------|--------------|-------------|
+| `onSelectionGained` | `SelectionGained` | Element gains selection focus |
+| `onSelectionLost` | `SelectionLost` | Element loses selection focus |
+
+### GuiObject Events
+
+| Rex Event | Roblox Event | Description |
+|-----------|--------------|-------------|
+| `onChanged` | `Changed` | Property changes on the element |
+| `onAncestryChanged` | `AncestryChanged` | Element's ancestry changes |
+| `onChildAdded` | `ChildAdded` | Child added to element |
+| `onChildRemoved` | `ChildRemoved` | Child removed from element |
+| `onDescendantAdded` | `DescendantAdded` | Descendant added to element |
+| `onDescendantRemoving` | `DescendantRemoving` | Descendant being removed |
+
+### Specialized Events
+
+| Rex Event | Roblox Event | Description |
+|-----------|--------------|-------------|
+| `onCanvasPositionChanged` | `CanvasPositionChanged` | ScrollingFrame canvas position changes |
+| `onPropertyChanged` | `PropertyChangedSignal` | Generic property change signal |
+
+## Extended Event Examples
+
+### Mouse Events
 
 ```luau
-local function ContactForm()
-    local name = Rex.useState("")
-    local email = Rex.useState("")
-    local message = Rex.useState("")
-    
-    local isValid = Rex.useComputed(function()
-        return name:get() ~= "" and 
-               email:get():match("@") and 
-               message:get() ~= ""
-    end, {name, email, message})
-    
-    local function handleSubmit()
-        if isValid:get() then
-            print("Submitting:", {
-                name = name:get(),
-                email = email:get(),
-                message = message:get()
-            })
-            -- Reset form
-            name:set("")
-            email:set("")
-            message:set("")
-        end
-    end
+local function MouseTracker()
+    local mousePosition = Rex.useState(Vector2.new(0, 0))
+    local isPressed = Rex.useState(false)
     
     return Rex("Frame") {
+        Size = UDim2.fromScale(1, 1),
+        BackgroundColor3 = Color3.fromRGB(50, 50, 50),
+        
+        onMouseMoved = function(x, y)
+            mousePosition:set(Vector2.new(x, y))
+        end,
+        
+        onMouseDown = function()
+            isPressed:set(true)
+        end,
+        
+        onMouseUp = function()
+            isPressed:set(false)
+        end,
+        
+        onMouseWheelForward = function()
+            print("Scrolled up")
+        end,
+        
+        onMouseWheelBackward = function()
+            print("Scrolled down")
+        end,
+        
         children = {
-            Rex("TextBox") {
-                PlaceholderText = "Name",
-                Text = name,
-                onTextChanged = function(instance)
-                    name:set(instance.Text)
-                end
-            },
-            Rex("TextBox") {
-                PlaceholderText = "Email",
-                Text = email,
-                onTextChanged = function(instance)
-                    email:set(instance.Text)
-                end
-            },
-            Rex("TextBox") {
-                PlaceholderText = "Message",
-                Text = message,
-                onTextChanged = function(instance)
-                    message:set(instance.Text)
-                end,
-                onFocusLost = function(instance, enterPressed)
-                    if enterPressed and isValid:get() then
-                        handleSubmit()
-                    end
-                end
-            },
-            Rex("TextButton") {
-                Text = "Submit",
-                BackgroundColor3 = isValid:map(function(valid)
-                    return valid and Color3.fromRGB(70, 130, 255) or Color3.fromRGB(100, 100, 100)
+            Rex("TextLabel") {
+                Text = mousePosition:map(function(pos)
+                    return `Mouse: {math.floor(pos.X)}, {math.floor(pos.Y)}`
                 end),
-                onClick = handleSubmit
+                TextColor3 = isPressed:map(function(pressed)
+                    return pressed and Color3.fromRGB(255, 100, 100) or Color3.fromRGB(255, 255, 255)
+                end)
             }
         }
     }
 end
 ```
 
-### Event Delegation Pattern
+### Touch Events
 
 ```luau
-local function ButtonList()
-    local items = Rex.useState({"Apple", "Banana", "Cherry"})
-    local selectedItem = Rex.useState(nil)
+local function TouchGestureDemo()
+    local gestureInfo = Rex.useState("No gesture")
     
-    local function handleItemClick(item)
-        return function()
-            selectedItem:set(item)
-            print("Selected:", item)
-        end
+    return Rex("Frame") {
+        Size = UDim2.fromScale(0.8, 0.8),
+        Position = UDim2.fromScale(0.1, 0.1),
+        BackgroundColor3 = Color3.fromRGB(70, 130, 255),
+        
+        onTouchTap = function()
+            gestureInfo:set("Tapped!")
+        end,
+        
+        onTouchLongPress = function()
+            gestureInfo:set("Long pressed!")
+        end,
+        
+        onTouchPan = function(positions, totalTranslation, velocity, state)
+            gestureInfo:set(`Panning: {state}`)
+        end,
+        
+        onTouchPinch = function(touchPositions, scale, velocity, state)
+            gestureInfo:set(`Pinching: Scale {scale}`)
+        end,
+        
+        onTouchRotate = function(touchPositions, rotation, velocity, state)
+            gestureInfo:set(`Rotating: {math.deg(rotation)}°`)
+        end,
+        
+        children = {
+            Rex("TextLabel") {
+                Text = gestureInfo,
+                Size = UDim2.fromScale(1, 1),
+                TextScaled = true,
+                BackgroundTransparency = 1,
+                TextColor3 = Color3.fromRGB(255, 255, 255)
+            }
+        }
     end
+end
+```
+
+### Input Events
+
+```luau
+local function KeyboardListener()
+    local currentKey = Rex.useState("None")
+    local keyState = Rex.useState("Released")
+    
+    return Rex("Frame") {
+        Size = UDim2.fromScale(1, 1),
+        
+        onInputBegan = function(input, gameProcessed)
+            if not gameProcessed and input.UserInputType == Enum.UserInputType.Keyboard then
+                currentKey:set(input.KeyCode.Name)
+                keyState:set("Pressed")
+            end
+        end,
+        
+        onInputEnded = function(input, gameProcessed)
+            if not gameProcessed and input.UserInputType == Enum.UserInputType.Keyboard then
+                keyState:set("Released")
+            end
+        end,
+        
+        children = {
+            Rex("TextLabel") {
+                Text = Rex.useComputed(function()
+                    return `Last Key: {currentKey:get()} ({keyState:get()})`
+                end, {currentKey, keyState}),
+                Size = UDim2.fromScale(1, 0.1),
+                BackgroundTransparency = 1,
+                TextScaled = true
+            }
+        }
+    }
+end
+```
+
+### ScrollingFrame Events
+
+```luau
+local function ScrollableContent()
+    local scrollPosition = Rex.useState(Vector2.new(0, 0))
     
     return Rex("ScrollingFrame") {
+        Size = UDim2.fromScale(0.8, 0.6),
+        Position = UDim2.fromScale(0.1, 0.2),
+        CanvasSize = UDim2.fromOffset(0, 1000),
+        ScrollBarThickness = 8,
+        
+        onCanvasPositionChanged = function()
+            -- Note: This event doesn't pass the canvas position directly
+            -- You'd need to access it via the instance if needed
+        end,
+        
         children = {
-            Rex("UIListLayout") {},
-            items:map(function(itemList)
-                local children = {}
-                for i, item in ipairs(itemList) do
-                    table.insert(children, Rex("TextButton") {
-                        Text = item,
-                        key = item,
-                        BackgroundColor3 = selectedItem:map(function(selected)
-                            return selected == item and Color3.fromRGB(100, 150, 255) or Color3.fromRGB(70, 130, 255)
-                        end),
-                        onClick = handleItemClick(item)
+            Rex("UIListLayout") {
+                SortOrder = Enum.SortOrder.LayoutOrder
+            },
+            -- Generate content
+            (function()
+                local content = {}
+                for i = 1, 20 do
+                    table.insert(content, Rex("TextLabel") {
+                        Text = `Item {i}`,
+                        Size = UDim2.new(1, 0, 0, 40),
+                        BackgroundColor3 = i % 2 == 0 and Color3.fromRGB(240, 240, 240) or Color3.fromRGB(255, 255, 255),
+                        LayoutOrder = i
                     })
                 end
-                return children
-            end)
+                return content
+            end)()
+        }
+    }
+end
+```
+
+### GuiObject Lifecycle Events
+
+```luau
+local function LifecycleTracker()
+    local events = Rex.useState({})
+    
+    local function addEvent(eventType)
+        events:update(function(current)
+            local new = table.clone(current)
+            table.insert(new, `{eventType} at {os.clock()}`)
+            -- Keep only last 10 events
+            if #new > 10 then
+                table.remove(new, 1)
+            end
+            return new
+        end)
+    end
+    
+    return Rex("Frame") {
+        Size = UDim2.fromScale(0.8, 0.8),
+        Position = UDim2.fromScale(0.1, 0.1),
+        
+        onAncestryChanged = function()
+            addEvent("Ancestry Changed")
+        end,
+        
+        onChildAdded = function(child)
+            addEvent(`Child Added: {child.Name}`)
+        end,
+        
+        onChildRemoved = function(child)
+            addEvent(`Child Removed: {child.Name}`)
+        end,
+        
+        onDescendantAdded = function(descendant)
+            addEvent(`Descendant Added: {descendant.Name}`)
+        end,
+        
+        onDescendantRemoving = function(descendant)
+            addEvent(`Descendant Removing: {descendant.Name}`)
+        end,
+        
+        children = {
+            Rex("ScrollingFrame") {
+                Size = UDim2.fromScale(1, 1),
+                CanvasSize = UDim2.fromOffset(0, 0),
+                AutomaticCanvasSize = Enum.AutomaticSize.Y,
+                children = {
+                    Rex("UIListLayout") {
+                        SortOrder = Enum.SortOrder.LayoutOrder
+                    },
+                    events:map(function(eventList)
+                        local children = {}
+                        for i, event in ipairs(eventList) do
+                            table.insert(children, Rex("TextLabel") {
+                                Text = event,
+                                Size = UDim2.new(1, 0, 0, 25),
+                                BackgroundTransparency = 1,
+                                TextXAlignment = Enum.TextXAlignment.Left,
+                                LayoutOrder = i,
+                                key = tostring(i)
+                            })
+                        end
+                        return children
+                    end)
+                }
+            }
         }
     }
 end
