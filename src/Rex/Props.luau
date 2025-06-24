@@ -19,15 +19,51 @@ Props.Ref = {
 
 -- Event handling map
 local EVENT_MAP = {
+	-- Mouse events
 	onClick = "MouseButton1Click",
 	onRightClick = "MouseButton2Click",
 	onHover = "MouseEnter",
 	onLeave = "MouseLeave",
+	onMouseEnter = "MouseEnter",
+	onMouseLeave = "MouseLeave",
+	onMouseMoved = "MouseMoved",
+	onMouseWheelForward = "MouseWheelForward",
+	onMouseWheelBackward = "MouseWheelBackward",
+	onMouseDown = "MouseButton1Down",
+	onMouseUp = "MouseButton1Up",
+	onRightMouseDown = "MouseButton2Down",
+	onRightMouseUp = "MouseButton2Up",
+	-- Touch events
+	onTouchTap = "TouchTap",
+	onTouchLongPress = "TouchLongPress",
+	onTouchPan = "TouchPan",
+	onTouchPinch = "TouchPinch",
+	onTouchRotate = "TouchRotate",
+	-- Input events
+	onInputBegan = "InputBegan",
+	onInputChanged = "InputChanged",
+	onInputEnded = "InputEnded",
+	-- Focus/Text events
 	onFocus = "Focused",
 	onBlur = "FocusLost",
 	onFocusLost = "FocusLost", -- Alternative name for onBlur
 	onTextChanged = "Changed", -- For TextBox
 	onActivated = "Activated", -- For buttons
+	onSelectionGained = "SelectionGained",
+	onSelectionLost = "SelectionLost",
+	-- GuiObject events
+	onChanged = "Changed",
+	onAncestryChanged = "AncestryChanged",
+	onChildAdded = "ChildAdded",
+	onChildRemoved = "ChildRemoved",
+	onDescendantAdded = "DescendantAdded",
+	onDescendantRemoving = "DescendantRemoving",
+	-- GuiButton events
+	onDoubleClick = "MouseButton1DoubleClick",
+	-- ScrollingFrame events
+	onCanvasPositionChanged = "CanvasPositionChanged",
+	-- Gui events
+	onPropertyChanged = "PropertyChangedSignal",
 }
 
 -- Check if a key is a special prop
@@ -53,7 +89,8 @@ function Props.setupEventHandler(instance: Instance, eventKey: string, handler: 
 	if not eventName then
 		warn(`Rex.Props: Unknown event prop "{eventKey}". This event is not supported by Rex.\n` ..
 			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/core_concepts/event_handling\n" ..
-			"💡 Supported events: onClick, onRightClick, onHover, onLeave, onFocus, onBlur, onTextChanged, onActivated\n" ..
+			"💡 Common events: onClick, onRightClick, onHover, onLeave, onFocus, onBlur, onTextChanged, onActivated\n" ..
+			"💡 Also supports: Mouse, Touch, Input, Selection, and GuiObject events - see documentation for full list\n" ..
 			"💡 Tip: Check the spelling and capitalization of your event prop.")
 		return
 	end
