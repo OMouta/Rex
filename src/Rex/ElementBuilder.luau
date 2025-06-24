@@ -44,11 +44,64 @@ function ElementBuilder.createFragment(children: {RexElement}, key: string?): Re
 	}
 end
 
+-- Safely destroy an element and clean up its children
+function ElementBuilder.destroyElement(element: RexElement): ()
+	if not element.instance then
+		return
+	end
+	
+	-- First, clean up any reactive bindings for this element
+	ElementBuilder.cleanupReactiveBindings(element.instance)
+	
+	-- If this element has children in our element tree, clean them up first
+	if element.children then
+		local childrenArray = ElementBuilder.normalizeChildrenToArray(element.children)
+		if childrenArray then
+			for _, child in ipairs(childrenArray) do
+				if child then
+					ElementBuilder.destroyElement(child)
+				end
+			end
+		end
+	end
+	
+	-- Finally, destroy the instance (this will also destroy any remaining Roblox children)
+	element.instance:Destroy()
+	element.instance = nil
+end
+
 -- Key-based diffing algorithm
 local function createKeyMap(elements: {RexElement}): {[string]: RexElement}
-	local keyMap = {}
+	local keyMap: {[string]: RexElement} = {}
+	local usedKeys: {[string]: boolean} = {}
+	
 	for i, element in ipairs(elements) do
-		local key = element.key or tostring(i)
+		local key: string = element.key or ("auto_" .. tostring(i))
+		
+		-- If no explicit key provided, ensure uniqueness
+		if not element.key then
+			-- Ensure uniqueness by checking for collisions
+			local counter = 1
+			local originalKey = key
+			while usedKeys[key] do
+				key = originalKey .. "_" .. tostring(counter)
+				counter = counter + 1
+			end
+		end
+		
+		-- Check for duplicate explicit keys and warn
+		if usedKeys[key] then
+			warn(`Rex.ElementBuilder: Duplicate key "{key}" found. This can cause rendering issues. Please ensure all keys are unique.`)
+			-- Make it unique anyway
+			local counter = 1
+			local originalKey = key
+			repeat
+				key = originalKey .. "_duplicate_" .. tostring(counter)
+				counter = counter + 1
+			until not usedKeys[key]
+		end
+		
+		usedKeys[key] = true
 		keyMap[key] = element
 	end
 	return keyMap
@@ -64,9 +117,7 @@ function ElementBuilder.reconcileChildren(
 		-- Remove all children
 		if oldChildren then
 			for _, child in ipairs(oldChildren) do
-				if child.instance then
-					child.instance:Destroy()
-				end
+				ElementBuilder.destroyElement(child)
 			end
 		end
 		return
@@ -112,9 +163,7 @@ function ElementBuilder.reconcileChildren(
 				end
 			else
 				-- Incompatible elements - replace
-				if oldChild.instance then
-					oldChild.instance:Destroy()
-				end
+				ElementBuilder.destroyElement(oldChild)
 				ElementBuilder.instantiate(newChild, parent)
 			end
 		else
@@ -125,22 +174,46 @@ function ElementBuilder.reconcileChildren(
 	
 	-- Phase 2: Remove elements that are no longer needed
 	for key, oldChild in pairs(oldKeyMap) do
-		if not reusedKeys[key] and oldChild.instance then
-			oldChild.instance:Destroy()
+		if not reusedKeys[key] then
+			ElementBuilder.destroyElement(oldChild)
 		end
 	end
 	
-	-- Phase 3: Reorder elements to match new order
-	ElementBuilder.reorderChildren(parent, newChildren)
+	-- Phase 3: Reorder elements to match new order (skip if there are layout objects)
+	local hasLayoutObjects = false
+	for _, child in ipairs(newChildren) do
+		if child.instance then
+			local className = child.instance.ClassName
+			if className == "UIListLayout" or className == "UIGridLayout" or className == "UIPageLayout" or
+			   className == "UITableLayout" or className:find("Constraint") then
+				hasLayoutObjects = true
+				break
+			end
+		end
+	end
+	
+	if not hasLayoutObjects then
+		ElementBuilder.reorderChildren(parent, newChildren)
+	end
 end
 
 -- Reorder children to match the desired order
 function ElementBuilder.reorderChildren(parent: Instance, children: {RexElement}): ()
 	for i, child in ipairs(children) do
-		if child.instance then
-			-- Move to correct position (Roblox doesn't have direct ordering, so we rely on creation order)
-			-- This is a limitation of Roblox - true ordering would require custom layout
-			child.instance.Parent = parent
+		if child.instance and child.instance.Parent ~= parent then
+			-- Only reparent if the instance isn't already in the correct parent
+			-- Skip certain UI objects that have reparenting restrictions
+			local className = child.instance.ClassName
+			if className == "UIListLayout" or className == "UIGridLayout" or className == "UIPageLayout" or
+			   className == "UITableLayout" or className:find("Constraint") then
+				-- These objects have special reparenting rules - only reparent if absolutely necessary
+				if child.instance.Parent == nil then
+					child.instance.Parent = parent
+				end
+			else
+				-- Safe to reparent for normal UI elements
+				child.instance.Parent = parent
+			end
 		end
 	end
 end

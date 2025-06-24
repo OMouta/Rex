@@ -216,6 +216,17 @@ function Rex.Fragment(props: {children: RexChildren, key: string?}): RexFragment
 	)
 end
 
+-- Element cleanup utility
+--[[
+Safely destroys a Rex element and cleans up all its children and reactive bindings.
+Use this when you need to manually clean up elements outside of normal reconciliation.
+`Docs` https://rex.tigas.dev/docs/0.1.0/api_reference/rendering
+@param element The RexElement to destroy.
+]]
+function Rex.destroyElement(element: RexElement): ()
+	ElementBuilder.destroyElement(element)
+end
+
 -- Provider component for context
 --[[
 Provides a context value to all children.

@@ -9,7 +9,8 @@ local function ListItem(props: {
     text: string,
     index: number,
     layoutOrder: number,
-    items: Rex.RexState<{string}>
+    items: Rex.RexState<{string}>,
+    onRemove: () -> ()
 })
     local items = props.items
 
@@ -44,13 +45,7 @@ local function ListItem(props: {
                 TextScaled = true,
                 Font = Enum.Font.SourceSans,
                 LayoutOrder = 2,
-                onClick = function()
-                    items:update(function(list)
-                        local new = {unpack(list)}
-                        table.remove(new, props.index)
-                        return new
-                    end)
-                end,
+                onClick = props.onRemove,
             }
         }
     }
@@ -174,7 +169,19 @@ local function App()
                                         text = item,
                                         index = i,
                                         layoutOrder = 10 + i,
-                                        items = items
+                                        items = items,
+                                        key = item, -- Explicit key for better reconciliation
+                                        onRemove = function()
+                                            items:update(function(currentList)
+                                                local new = {}
+                                                for j, listItem in ipairs(currentList) do
+                                                    if j ~= i then
+                                                        table.insert(new, listItem)
+                                                    end
+                                                end
+                                                return new
+                                            end)
+                                        end
                                     })
                                 end
                                 return children

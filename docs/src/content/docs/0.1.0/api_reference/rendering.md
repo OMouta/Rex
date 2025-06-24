@@ -458,6 +458,117 @@ Rex("TextBox") {
 }
 ```
 
+## Element Cleanup
+
+### `Rex.destroyElement(element: RexElement): ()`
+
+Safely destroys a Rex element and cleans up all its children and reactive bindings. This function handles the complete cleanup hierarchy to prevent memory leaks and parenting errors.
+
+**Parameters:**
+
+- `element: RexElement` - The element to destroy
+
+**Returns:** None
+
+**Example:**
+
+```luau
+-- Create an element
+local myElement = Rex("Frame") {
+    Size = UDim2.fromOffset(200, 100),
+    children = {
+        Rex("TextLabel") {
+            Text = "This will be cleaned up",
+            Size = UDim2.fromScale(1, 1)
+        }
+    }
+}
+
+-- Render it
+local instance = Rex.render(myElement, workspace)
+
+-- Later, clean it up properly
+Rex.destroyElement(myElement)
+
+-- Example: Conditional element cleanup
+local function ConditionalModal(props)
+    local showModal = Rex.useState(false)
+    local modalElement = Rex.useRef()
+    
+    Rex.useEffect(function()
+        if not showModal:get() and modalElement.current then
+            -- Clean up modal when hiding
+            Rex.destroyElement(modalElement.current)
+            modalElement.current = nil
+        end
+    end, {showModal})
+    
+    if showModal:get() then
+        local element = Rex("Frame") {
+            -- Modal content...
+            Size = UDim2.fromOffset(400, 300),
+            Position = UDim2.fromScale(0.5, 0.5),
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            children = {
+                Rex("TextButton") {
+                    Text = "Close",
+                    onClick = function()
+                        showModal:set(false)
+                    end
+                }
+            }
+        }
+        modalElement.current = element
+        return element
+    end
+    
+    return nil
+end
+
+-- Example: Cleaning up manually created elements
+local function DynamicListManager()
+    local elements = {}
+    
+    local function addElement()
+        local newElement = Rex("Frame") {
+            Size = UDim2.fromOffset(100, 50),
+            BackgroundColor3 = Color3.fromRGB(math.random(100, 255), 100, 100)
+        }
+        
+        Rex.render(newElement, workspace)
+        table.insert(elements, newElement)
+    end
+    
+    local function clearAllElements()
+        for _, element in ipairs(elements) do
+            Rex.destroyElement(element)
+        end
+        elements = {}
+    end
+    
+    return {
+        addElement = addElement,
+        clearAllElements = clearAllElements
+    }
+end
+```
+
+**What `destroyElement` does:**
+
+1. **Cleans up reactive bindings** - Disconnects all state subscriptions and event handlers
+2. **Recursively destroys children** - Ensures child elements are properly cleaned up first
+3. **Destroys the Roblox instance** - Finally destroys the underlying UI instance
+4. **Prevents memory leaks** - Ensures no orphaned references remain
+
+**When to use:**
+
+- Manual element lifecycle management
+- Conditional rendering with complex cleanup
+- Cleaning up elements created outside normal component trees
+- Memory management in long-running applications
+
+**Note:** Elements destroyed through normal Rex reconciliation (like when removing items from reactive lists) are automatically cleaned up. You only need `destroyElement` for manual cleanup scenarios.
+
 ## Type Definitions
 
 ```luau
