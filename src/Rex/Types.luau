@@ -53,6 +53,7 @@ export type RexState<T> = {
 	_value: T,
 	_listeners: {(newValue: T, oldValue: T) -> ()},
 	_isDeep: boolean?, -- Flag for deep reactive states
+	_isComputed: boolean?, -- Flag for computed states
 }
 
 -- Component function type (just use plain functions!)

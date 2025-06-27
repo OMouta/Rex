@@ -415,6 +415,9 @@ function State.createMemoizedComputed<T>(
 	local key = memoKey or generateId()
 	local computedState = State.createState(computeFn())
 	
+	-- Mark as computed for reactive detection
+	;(computedState :: any)._isComputed = true
+	
 	-- Store original set method
 	local internalSet = computedState.set
 	
