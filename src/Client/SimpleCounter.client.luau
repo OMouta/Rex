@@ -104,9 +104,7 @@ local function App()
 							-- Count number (large)
 							Rex("TextLabel") {
 								Name = "CountNumber",
-								Text = count:map(function(value)
-									return tostring(value)
-								end),
+								Text = count, -- Direct state binding with auto-conversion!
 								Size = UDim2.new(1, 0, 0.6, 0),
 								Position = UDim2.new(0, 0, 0, 0),
 								BackgroundTransparency = 1,
@@ -156,9 +154,9 @@ local function App()
 								LayoutOrder = 1,
 
 								onClick = function()
-									count:update(function(current)
-										return math.max(0, current - 1)
-									end)
+									-- Simplified with direct set instead of update
+									local newValue = math.max(0, count:get() - 1)
+									count:set(newValue)
 								end,
 
 								children = {
@@ -180,9 +178,8 @@ local function App()
 								LayoutOrder = 2,
 								
 								onClick = function()
-									count:update(function(current)
-										return current + 1
-									end)
+									-- Simplified increment
+									count:set(count:get() + 1)
 								end,
 								
 								children = {

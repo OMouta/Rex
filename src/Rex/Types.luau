@@ -34,11 +34,26 @@ export type RexState<T> = {
 	set: (self: RexState<T>, value: T) -> (),
 	onChange: (self: RexState<T>, callback: (newValue: T, oldValue: T) -> ()) -> () -> (), -- Returns disconnect function
 	map: (self: RexState<T>, mapFn: (value: T) -> any) -> any, -- Map method for transformations
+	each: (self: RexState<T>, mapFn: (item: any, index: number) -> any) -> any, -- Each method for array mapping
 	update: (self: RexState<T>, updateFn: (current: T) -> T) -> (), -- Immutable update helper (always available)
 	destroy: ((self: RexState<T>) -> ())?, -- Optional for computed states
+	
+	-- Phase 3: Enhanced State Operation Helpers
+	increment: (self: RexState<T>, amount: number?) -> (), -- Increment numeric states
+	decrement: (self: RexState<T>, amount: number?) -> (), -- Decrement numeric states
+	toggle: (self: RexState<T>) -> (), -- Toggle boolean states
+	push: (self: RexState<T>, ...any) -> (), -- Push items to array states
+	pop: (self: RexState<T>) -> any, -- Pop items from array states
+	removeAt: (self: RexState<T>, index: number) -> (), -- Remove item by index
+	remove: (self: RexState<T>, value: any) -> (), -- Remove item by value
+	clear: (self: RexState<T>) -> (), -- Clear array/table states
+	setPath: (self: RexState<T>, path: string, value: any) -> (), -- Set nested property
+	getPath: (self: RexState<T>, path: string) -> any, -- Get nested property
+	
 	_value: T,
 	_listeners: {(newValue: T, oldValue: T) -> ()},
 	_isDeep: boolean?, -- Flag for deep reactive states
+	_isComputed: boolean?, -- Flag for computed states
 }
 
 -- Component function type (just use plain functions!)

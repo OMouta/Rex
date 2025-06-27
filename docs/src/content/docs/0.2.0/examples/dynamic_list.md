@@ -1,8 +1,25 @@
---!strict
---[[
-    Dynamic List Example - Rex Framework
-    Demonstrates a reactive list with add/remove functionality
---]]
+---
+title: "Dynamic List"
+description: "Building reactive lists with add, remove, and update functionality in Rex."
+category: "Examples"
+order: 2
+version: "0.2.0"
+lastUpdated: 2025-06-23
+---
+
+This example demonstrates how to create a dynamic, reactive list in Rex with full CRUD (Create, Read, Update, Delete) functionality using Rex's new universal reactivity system and simplified list rendering. You'll learn about the `each` method for lists, automatic type conversion, and enhanced state helpers.
+
+## What You'll Learn
+
+- Simplified list rendering with the `each` method
+- Universal reactivity with direct state binding
+- Enhanced state helpers (`push`, `remove`, `clear`)
+- Automatic type conversion for properties
+- Component composition and reusable patterns
+
+## Complete Example
+
+```lua
 local Rex = require(game.ReplicatedStorage.Rex)
 
 local function ListItem(props: {
@@ -71,6 +88,7 @@ local function InputRow(props : {
                 Padding = UDim.new(0, 8),
             },
             Rex("TextBox") {
+                -- Direct state binding - automatically reactive!
                 Text = inputValue,
                 PlaceholderText = "Add new item...",
                 Size = UDim2.new(0.7, 0, 1, 0),
@@ -92,12 +110,10 @@ local function InputRow(props : {
                 onClick = function()
                     local value = inputValue:get():gsub("^%s+", ""):gsub("%s+$", "")
                     if value ~= "" then
-                        items:update(function(list)
-                            local new = {unpack(list)}
-                            table.insert(new, value)
-                            return new
-                        end)
-                        inputValue:set("")
+                        -- Use push helper instead of update
+                        items:push(value)
+                        -- Use clear helper instead of set("")
+                        inputValue:clear()
                     end
                 end,
             }
@@ -106,7 +122,6 @@ local function InputRow(props : {
 end
 
 local function App()
-
     local items = Rex.useState({"Apple", "Banana", "Cherry"})
     local inputValue = Rex.useState("")
 
@@ -162,24 +177,17 @@ local function App()
                                 VerticalAlignment = Enum.VerticalAlignment.Top,
                                 SortOrder = Enum.SortOrder.LayoutOrder,
                             },
-
+                            -- Simple list rendering with each method
                             items:each(function(item, index)
                                 return ListItem {
                                     text = item,
                                     index = index,
                                     layoutOrder = 10 + index,
                                     items = items,
-                                    key = item, -- Explicit key for better reconciliation
+                                    key = item, -- Key for efficient reconciliation
                                     onRemove = function()
-                                        items:update(function(currentList)
-                                            local new = {}
-                                            for j, listItem in ipairs(currentList) do
-                                                if j ~= index then
-                                                    table.insert(new, listItem)
-                                                end
-                                            end
-                                            return new
-                                        end)
+                                        -- Use removeAt helper
+                                        items:removeAt(index)
                                     end
                                 }
                             end)
@@ -193,3 +201,140 @@ end
 
 local player = game:GetService("Players").LocalPlayer
 local cleanup = Rex.render(App, player.PlayerGui)
+```
+
+## Key Concepts Demonstrated
+
+### 1. State Management
+
+The example uses `Rex.useState` to manage the list of items:
+
+```lua
+local items = Rex.useState({"Apple", "Banana", "Cherry"})
+```
+
+### 2. List Updates with Helper Methods
+
+Items are updated using convenient helper methods:
+
+```lua
+onClick = function()
+    local value = inputValue:get():gsub("^%s+", ""):gsub("%s+$", "")
+    if value ~= "" then
+        -- Use push helper to add items
+        items:push(value)
+        -- Use clear helper to empty input
+        inputValue:clear()
+    end
+end,
+```
+
+**Available helper methods:**
+
+- `items:push(value)` - Add item to end
+- `items:removeAt(index)` - Remove item by index
+- `items:remove(predicate)` - Remove items matching condition
+- `items:clear()` - Empty the list
+- `inputValue:clear()` - Clear string values
+
+### 3. Simplified List Rendering with `each`
+
+The list automatically updates when items change using the `each` method:
+
+```lua
+-- Before: Complex mapping with manual loop
+items:map(function(list)
+    local children = {}
+    for i, item in ipairs(list) do
+        table.insert(children, ListItem { ... })
+    end
+    return children
+end)
+
+-- After: Simple each method
+items:each(function(item, index)
+    return ListItem {
+        text = item,
+        index = index,
+        layoutOrder = 10 + index,
+        key = item, -- Key for efficient reconciliation
+        onRemove = function()
+            items:removeAt(index)
+        end
+    }
+end)
+```
+
+The `each` method automatically:
+
+- Handles the loop internally
+- Provides both item and index
+- Maintains keys for efficient updates
+- Simplifies the code significantly
+
+### 4. Component Composition
+
+The example breaks down into focused, reusable components:
+
+- `ListItem`: Individual item with edit/delete functionality
+- `InputRow`: Input form for adding new items
+- `App`: Main application container
+
+### 5. Event Handling
+
+Various events are handled reactively:
+
+```lua
+onClick = function()
+    props.onRemove(props.index)
+end,
+
+onTextChanged = function(textBox)
+    inputValue:set(textBox.Text)
+end,
+```
+
+## Important Notes
+
+### Keys for Performance
+
+Notice the `key` property on list items:
+
+```lua
+key = item, -- Explicit key for better reconciliation
+```
+
+Keys help Rex efficiently update the UI when items are added, removed, or reordered. Without keys, Rex would have to recreate all items when the list changes.
+
+### State Immutability
+
+Always create new arrays/objects when updating state:
+
+```lua
+-- ✅ Correct: Create new array
+items:update(function(current)
+    local newItems = {unpack(current)}
+    table.insert(newItems, newItem)
+    return newItems
+end)
+
+-- ❌ Wrong: Modify existing array
+items:update(function(current)
+    table.insert(current, newItem) -- Mutates existing state!
+    return current
+end)
+```
+
+## Variations and Extensions
+
+You can extend this example with:
+
+- **Filtering**: Add a search box to filter items
+- **Sorting**: Allow sorting by text, date created, etc.
+- **Drag and Drop**: Reorder items by dragging
+- **Categories**: Group items into categories
+- **Persistence**: Save/load items from DataStore
+- **Validation**: Add more complex validation rules
+- **Animations**: Animate item additions/removals
+
+The reactive nature of Rex makes all these extensions straightforward to implement!

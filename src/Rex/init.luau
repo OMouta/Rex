@@ -36,7 +36,7 @@ Rex.withContext = State.withContext
 -- Effect system
 --[[
 Runs an effect when dependencies change.
-`Docs` https://rex.tigas.dev/docs/0.1.0/core_concepts/lifecycle_hooks
+`Docs` https://rex.tigas.dev/docs/0.2.0/core_concepts/lifecycle_hooks
 @param effect The function to run as an effect. Return a cleanup function if needed.
 @param dependencies (Optional) Array of RexState dependencies.
 @return Cleanup function.
@@ -86,7 +86,7 @@ end
 -- Simple lifecycle hooks (placeholder for now)
 --[[
 Runs a function when the component mounts.
-`Docs` https://rex.tigas.dev/docs/0.1.0/core_concepts/lifecycle_hooks
+`Docs` https://rex.tigas.dev/docs/0.2.0/core_concepts/lifecycle_hooks
 @param callback The function to run on mount.
 @return Cleanup function.
 ]]
@@ -98,7 +98,7 @@ end
 
 --[[
 Runs a function when the component unmounts.
-`Docs` https://rex.tigas.dev/docs/0.1.0/core_concepts/lifecycle_hooks
+`Docs` https://rex.tigas.dev/docs/0.2.0/core_concepts/lifecycle_hooks
 @param callback The function to run on unmount.
 @return Cleanup function.
 ]]
@@ -110,7 +110,7 @@ end
 -- Render function
 --[[
 Renders a Rex component tree into a parent instance.
-`Docs` https://rex.tigas.dev/docs/0.1.0/api_reference/rendering
+`Docs` https://rex.tigas.dev/docs/0.2.0/api_reference/rendering
 @param elementOrRenderFn The root component or render function.
 @param container The parent Instance to render into.
 @param options (Optional) Table with render options.
@@ -120,19 +120,19 @@ function Rex.render(elementOrRenderFn: RexElement | (() -> RexElement), containe
 	-- Validate inputs
 	if not elementOrRenderFn then
 		error("Rex.render: First argument cannot be nil. Expected a RexElement or render function.\n" ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/api_reference/rendering#render\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/api_reference/rendering#render\n" ..
 			"💡 Example: Rex.render(Rex('Frame'){}, playerGui)")
 	end
 	
 	if not container then
 		error("Rex.render: Container cannot be nil. Expected a valid Roblox Instance.\n" ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/api_reference/rendering#render\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/api_reference/rendering#render\n" ..
 			"💡 Example: Rex.render(element, game.Players.LocalPlayer.PlayerGui)")
 	end
 	
 	if typeof(container) ~= "Instance" then
 		error(`Rex.render: Container must be a Roblox Instance, got {typeof(container)}.\n` ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/api_reference/rendering#render\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/api_reference/rendering#render\n" ..
 			"💡 Common containers: PlayerGui, ScreenGui, Frame, ScrollingFrame")
 	end
 	
@@ -156,19 +156,19 @@ end
 --[[
 Rex(className: string) -> (props: RexProps?) -> RexElement
 Shorthand for creating a Rex UI element, e.g. Rex("Frame") { ... }
-`Docs` https://rex.tigas.dev/docs/0.1.0/core_concepts/components
+`Docs` https://rex.tigas.dev/docs/0.2.0/core_concepts/components
 ]]
 local function createElement(className: string): (props: RexProps?) -> RexElement
 	-- Validate className early to give better error messages
 	if typeof(className) ~= "string" then
 		error(`Rex: Element className must be a string, got {typeof(className)}.\n` ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/core_concepts/components#element-creation\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/components#element-creation\n" ..
 			"💡 Example: Rex('Frame') { ... } instead of Rex({className}) { ... }")
 	end
 	
 	if className == "" then
 		error("Rex: Element className cannot be empty.\n" ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/core_concepts/components#element-creation\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/components#element-creation\n" ..
 			"💡 Example: Rex('Frame') { ... } instead of Rex('') { ... }")
 	end
 	
@@ -180,7 +180,7 @@ end
 -- Unified component creation helper
 --[[
 Creates a typed Rex component.
-`Docs` https://rex.tigas.dev/docs/0.1.0/core_concepts/components
+`Docs` https://rex.tigas.dev/docs/0.2.0/core_concepts/components
 @param name The name of the component.
 @param renderFn The render function for the component.
 @return RexComponent<T> function.
@@ -194,7 +194,7 @@ end
 -- Ref system for instance access
 --[[
 Creates a ref object for storing mutable values or instances.
-`Docs` https://rex.tigas.dev/docs/0.1.0/core_concepts/components
+`Docs` https://rex.tigas.dev/docs/0.2.0/core_concepts/components
 @param initialValue (Optional) The initial value for the ref.
 @return RexRef<T> object.
 ]]
@@ -205,7 +205,7 @@ end
 -- Fragment for grouping elements without wrapper
 --[[
 Groups children elements without adding an extra UI instance.
-`Docs` https://rex.tigas.dev/docs/0.1.0/core_concepts/components
+`Docs` https://rex.tigas.dev/docs/0.2.0/core_concepts/components
 @param props Table with children and optional key.
 @return RexFragment object.
 ]]
@@ -220,7 +220,7 @@ end
 --[[
 Safely destroys a Rex element and cleans up all its children and reactive bindings.
 Use this when you need to manually clean up elements outside of normal reconciliation.
-`Docs` https://rex.tigas.dev/docs/0.1.0/api_reference/rendering
+`Docs` https://rex.tigas.dev/docs/0.2.0/api_reference/rendering
 @param element The RexElement to destroy.
 ]]
 function Rex.destroyElement(element: RexElement): ()
@@ -230,7 +230,7 @@ end
 -- Provider component for context
 --[[
 Provides a context value to all children.
-`Docs` https://rex.tigas.dev/docs/0.1.0/api_reference/context
+`Docs` https://rex.tigas.dev/docs/0.2.0/api_reference/context
 @param props Table with context, value, and children.
 @return RexElement wrapping children with context.
 ]]
@@ -252,14 +252,14 @@ function Rex.Provider<T>(props: {context: RexContext<T>, value: T | RexState<T>,
 end
 
 -- Version info
-Rex.VERSION = "0.1.0"
+Rex.VERSION = "0.2.0"
 
 -- Internal utilities for better error messages
 local function _formatRexError(module: string, message: string, docPath: string?, tip: string?): string
 	local formatted = `Rex.{module}: {message}`
 	
 	if docPath then
-		formatted = formatted .. `\n📖 Learn more: https://rex.tigas.dev/docs/0.1.0/{docPath}`
+		formatted = formatted .. `\n📖 Learn more: https://rex.tigas.dev/docs/0.2.0/{docPath}`
 	end
 	
 	if tip then
@@ -272,14 +272,14 @@ end
 --[[
 Rex(className: string) -> (props: RexProps?) -> RexElement
 Shorthand for creating a Rex UI element, e.g. Rex("Frame") { ... }
-`Docs` https://rex.tigas.dev/docs/0.1.0/core_concepts/components
+`Docs` https://rex.tigas.dev/docs/0.2.0/core_concepts/components
 ]]
 setmetatable(Rex, {
 	__call = function(_, className: string)
 		-- Additional validation in the main entry point
 		if typeof(className) ~= "string" then
 			error(`Rex: Element className must be a string, got {typeof(className)}.\n` ..
-				"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/core_concepts/components#element-creation\n" ..
+				"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/components#element-creation\n" ..
 				"💡 Example: Rex('Frame') { ... } instead of Rex({typeof(className)}) { ... }\n" ..
 				"💡 Common mistake: Are you trying to pass props directly? Use Rex('ClassName') { props } instead.")
 		end

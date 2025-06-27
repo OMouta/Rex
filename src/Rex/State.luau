@@ -60,7 +60,7 @@ end
 
 --[[
 Creates a deeply reactive state value.
-`Docs` https://rex.tigas.dev/docs/0.1.0/advanced_features/deep_reactivity
+`Docs` https://rex.tigas.dev/docs/0.2.0/advanced_features/deep_reactivity
 @param initialValue The initial table value.
 @return RexState<T> object with deep reactivity.
 ]]
@@ -74,6 +74,17 @@ function State.createDeepState<T>(initialValue: T): RexState<T>
 		onChange = nil :: any,
 		map = nil :: any,
 		update = nil :: any,
+		each = nil :: any,
+		increment = nil :: any,
+		decrement = nil :: any,
+		toggle = nil :: any,
+		push = nil :: any,
+		pop = nil :: any,
+		removeAt = nil :: any,
+		remove = nil :: any,
+		clear = nil :: any,
+		setPath = nil :: any,
+		getPath = nil :: any,
 	}
 	
 	-- Track access for auto-dependency collection
@@ -128,12 +139,214 @@ function State.createDeepState<T>(initialValue: T): RexState<T>
 		return mappedState
 	end
 	
+	-- Each transformation for arrays - maps over individual items
+	function state:each(mapFn: (item: any, index: number) -> any): any
+		-- Create a reactive children object
+		local reactiveChildren = {
+			__rexReactiveChildren = true,
+			
+			get = function()
+				local currentValue = state:get()
+				if typeof(currentValue) ~= "table" then
+					warn("Rex.State:each - Value is not a table/array")
+					return {}
+				end
+				
+				local elements = {}
+				for i, item in ipairs(currentValue) do
+					local element = mapFn(item, i)
+					if element then
+						-- Ensure elements have keys for efficient reconciliation
+						if typeof(element) == "table" and element.props and not element.key then
+							element.key = tostring(i)
+						end
+						table.insert(elements, element)
+					end
+				end
+				return elements
+			end,
+			
+			onChange = function(callback: () -> ())
+				return state:onChange(callback)
+			end
+		}
+		
+		return reactiveChildren
+	end
+	
+	-- Increment helper for numeric states
+	function state:increment(amount: number?): ()
+		local value = amount or 1
+		self:update(function(current)
+			if typeof(current) == "number" then
+				return current + value
+			else
+				warn("Rex.State:increment - State value is not a number")
+				return current
+			end
+		end)
+	end
+	
+	-- Decrement helper for numeric states
+	function state:decrement(amount: number?): ()
+		local value = amount or 1
+		self:update(function(current)
+			if typeof(current) == "number" then
+				return current - value
+			else
+				warn("Rex.State:decrement - State value is not a number")
+				return current
+			end
+		end)
+	end
+	
+	-- Toggle helper for boolean states
+	function state:toggle(): ()
+		self:update(function(current)
+			if typeof(current) == "boolean" then
+				return ((not current) :: any) :: T
+			else
+				warn("Rex.State:toggle - State value is not a boolean")
+				return current
+			end
+		end)
+	end
+	
+	-- Push helper for array states
+	function state:push(...: any): ()
+		local items = {...}
+		self:update(function(current)
+			if typeof(current) == "table" then
+				local newArray = deepClone(current)
+				for _, item in ipairs(items) do
+					table.insert(newArray, item)
+				end
+				return newArray
+			else
+				warn("Rex.State:push - State value is not a table/array")
+				return current
+			end
+		end)
+	end
+	
+	-- Pop helper for array states
+	function state:pop(): any
+		local poppedValue = nil
+		self:update(function(current)
+			if typeof(current) == "table" and #current > 0 then
+				local newArray = deepClone(current)
+				poppedValue = table.remove(newArray)
+				return newArray
+			else
+				warn("Rex.State:pop - State value is not a table/array or is empty")
+				return current
+			end
+		end)
+		return poppedValue
+	end
+	
+	-- Remove helper for array states (by index)
+	function state:removeAt(index: number): ()
+		self:update(function(current)
+			if typeof(current) == "table" then
+				local newArray = {}
+				for i, item in ipairs(current) do
+					if i ~= index then
+						table.insert(newArray, item)
+					end
+				end
+				return (newArray :: any) :: T
+			else
+				warn("Rex.State:removeAt - State value is not a table/array")
+				return current
+			end
+		end)
+	end
+	
+	-- Remove helper for array states (by value)
+	function state:remove(value: any): ()
+		self:update(function(current)
+			if typeof(current) == "table" then
+				local newArray = {}
+				for _, item in ipairs(current) do
+					if item ~= value then
+						table.insert(newArray, item)
+					end
+				end
+				return (newArray :: any) :: T
+			else
+				warn("Rex.State:remove - State value is not a table/array")
+				return current
+			end
+		end)
+	end
+	
+	-- Clear helper for array/table states
+	function state:clear(): ()
+		self:update(function(current)
+			if typeof(current) == "table" then
+				return ({} :: any) :: T
+			else
+				warn("Rex.State:clear - State value is not a table")
+				return current
+			end
+		end)
+	end
+	
+	-- SetPath helper for nested object states (dot notation: "user.settings.theme")
+	function state:setPath(path: string, value: any): ()
+		self:update(function(current)
+			if typeof(current) ~= "table" then
+				warn("Rex.State:setPath - State value is not a table/object")
+				return current
+			end
+			
+			local newObj = deepClone(current)
+			local keys = string.split(path, ".")
+			local target = newObj
+			
+			-- Navigate to the parent of the target property
+			for i = 1, #keys - 1 do
+				local key = keys[i]
+				if typeof(target[key]) ~= "table" then
+					target[key] = {}
+				end
+				target = target[key]
+			end
+			
+			-- Set the final property
+			target[keys[#keys]] = value
+			return newObj
+		end)
+	end
+	
+	-- GetPath helper for nested object states (dot notation: "user.settings.theme")
+	function state:getPath(path: string): any
+		local current = self:get()
+		if typeof(current) ~= "table" then
+			return nil
+		end
+		
+		local keys = string.split(path, ".")
+		local value = current
+		
+		for _, key in ipairs(keys) do
+			if typeof(value) == "table" and value[key] ~= nil then
+				value = value[key]
+			else
+				return nil
+			end
+		end
+		
+		return value
+	end
+	
 	return state
 end
 
 --[[
 Creates a reactive state value.
-`Docs` https://rex.tigas.dev/docs/0.1.0/api_reference/state
+`Docs` https://rex.tigas.dev/docs/0.2.0/api_reference/state
 @param initialValue The initial value of the state.
 @return RexState<T> object with get, set, and update methods.
 ]]
@@ -147,12 +360,48 @@ function State.createState<T>(initialValue: T): RexState<T>
 			self:set(newValue)
 		end
 	end
+	-- Ensure each method is always available
+	if not state.each then
+		function state:each(mapFn: (item: any, index: number) -> any): any
+			-- Create a reactive children object
+			local reactiveChildren = {
+				__rexReactiveChildren = true,
+				
+				get = function()
+					local currentValue = state:get()
+					if typeof(currentValue) ~= "table" then
+						warn("Rex.State:each - Value is not a table/array")
+						return {}
+					end
+					
+					local elements = {}
+					for i, item in ipairs(currentValue) do
+						local element = mapFn(item, i)
+						if element then
+							-- Ensure elements have keys for efficient reconciliation
+							if typeof(element) == "table" and element.props and not element.key then
+								element.key = tostring(i)
+							end
+							table.insert(elements, element)
+						end
+					end
+					return elements
+				end,
+				
+				onChange = function(callback: () -> ())
+					return state:onChange(callback)
+				end
+			}
+			
+			return reactiveChildren
+		end
+	end
 	return state
 end
 
 --[[
 Creates a computed state that updates when dependencies change.
-`Docs` https://rex.tigas.dev/docs/0.1.0/advanced_features/memoization
+`Docs` https://rex.tigas.dev/docs/0.2.0/advanced_features/memoization
 @param computeFn The function to compute the value.
 @param dependencies Array of RexState dependencies.
 @param memoKey (Optional) Unique key for memoization.
@@ -165,6 +414,9 @@ function State.createMemoizedComputed<T>(
 ): RexState<T>
 	local key = memoKey or generateId()
 	local computedState = State.createState(computeFn())
+	
+	-- Mark as computed for reactive detection
+	;(computedState :: any)._isComputed = true
 	
 	-- Store original set method
 	local internalSet = computedState.set
@@ -203,14 +455,14 @@ function State.createMemoizedComputed<T>(
 	-- Prevent external modification
 	function computedState:set(_: T): ()
 		warn("Rex.State: Cannot directly set computed state value. Computed states are read-only and automatically update when their dependencies change.\n" ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/api_reference/state#usecomputed\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/api_reference/state#usecomputed\n" ..
 			"💡 Tip: To modify the result, update the dependencies that this computed state relies on.")
 	end
 	
 	-- Prevent external updates
 	function computedState:update(_: (current: T) -> T): ()
 		warn("Rex.State: Cannot directly update computed state value. Computed states are read-only and automatically update when their dependencies change.\n" ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/api_reference/state#usecomputed\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/api_reference/state#usecomputed\n" ..
 			"💡 Tip: To modify the result, update the dependencies that this computed state relies on.")
 	end
 	
@@ -227,7 +479,7 @@ end
 
 --[[
 Creates an automatically tracked computed state.
-`Docs` https://rex.tigas.dev/docs/0.1.0/api_reference/state
+`Docs` https://rex.tigas.dev/docs/0.2.0/api_reference/state
 @param computeFn The function to compute the value.
 @return RexState<T> representing the computed value.
 ]]
@@ -246,7 +498,7 @@ end
 
 --[[
 Creates a new context for sharing state.
-`Docs` https://rex.tigas.dev/docs/0.1.0/api_reference/context
+`Docs` https://rex.tigas.dev/docs/0.2.0/api_reference/context
 @param defaultValue The default value for the context.
 @return RexContext<T> object.
 ]]
@@ -259,7 +511,7 @@ end
 
 --[[
 Consumes a context value within a component.
-`Docs` https://rex.tigas.dev/docs/0.1.0/api_reference/context
+`Docs` https://rex.tigas.dev/docs/0.2.0/api_reference/context
 @param context The RexContext to consume.
 @return The current value of the context.
 ]]
@@ -270,7 +522,7 @@ end
 
 --[[
 Provides a context value to a function.
-`Docs` https://rex.tigas.dev/docs/0.1.0/api_reference/context
+`Docs` https://rex.tigas.dev/docs/0.2.0/api_reference/context
 @param context The RexContext to provide.
 @param value The value to provide.
 @param fn The function to wrap with context.
@@ -293,7 +545,7 @@ end
 
 --[[
 Creates an async state value that resolves from a promise or async function.
-`Docs` https://rex.tigas.dev/docs/0.1.0/advanced_features/async_state
+`Docs` https://rex.tigas.dev/docs/0.2.0/advanced_features/async_state
 @param asyncFn The async function or promise.
 @param dependencies (Optional) Array of RexState dependencies.
 @return AsyncState<T> representing the async value.
@@ -306,7 +558,8 @@ function State.createAsyncState<T>(asyncFn: () -> T, dependencies: {RexState<any
 	local function load()
 		loading:set(true)
 		error:set(nil)
-				task.spawn(function()
+		
+		task.spawn(function()
 			local success, result = pcall(asyncFn)
 			
 			if success then
@@ -314,7 +567,7 @@ function State.createAsyncState<T>(asyncFn: () -> T, dependencies: {RexState<any
 				error:set(nil)
 			else
 				local errorMsg = `Rex.State.createAsyncState: Async function failed with error: {tostring(result)}\n` ..
-					"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/advanced_features/async_state\n" ..
+					"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/advanced_features/async_state\n" ..
 					"💡 Tip: Check your async function for errors, network issues, or invalid operations."
 				error:set(errorMsg)
 			end
@@ -347,7 +600,7 @@ local isBatching = false
 
 --[[
 Batches multiple state updates together.
-`Docs` https://rex.tigas.dev/docs/0.1.0/api_reference/state
+`Docs` https://rex.tigas.dev/docs/0.2.0/api_reference/state
 @param updateFn The function containing batched updates.
 ]]
 function State.batch(updateFn: () -> ()): ()
@@ -373,7 +626,7 @@ end
 -- Enhanced watch with validation
 --[[
 Watches state changes and runs a callback when any dependency changes.
-`Docs` https://rex.tigas.dev/docs/0.1.0/api_reference/state
+`Docs` https://rex.tigas.dev/docs/0.2.0/api_reference/state
 @param states Array of RexState dependencies to watch.
 @param callback Function to call when dependencies change.
 @param options (Optional) Configuration options for watching.
@@ -390,7 +643,7 @@ function State.watch(
 	for i, state in ipairs(states) do
 		if not State.isState(state) then
 			warn(`Rex.State.useWatch: Dependency at index {i} is not a valid state object. Expected a RexState created with useState, useComputed, or useDeepState.\n` ..
-				"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/api_reference/state#usewatch\n" ..
+				"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/api_reference/state#usewatch\n" ..
 				`💡 Got: {typeof(state)}, Expected: RexState object with get(), set(), and onChange() methods.`)
 		end
 	end
@@ -420,7 +673,7 @@ end
 
 --[[
 Checks if a value is a valid RexState object.
-`Docs` https://rex.tigas.dev/docs/0.1.0/api_reference/state
+`Docs` https://rex.tigas.dev/docs/0.2.0/api_reference/state
 @param value The value to check.
 @return True if the value is a RexState.
 ]]

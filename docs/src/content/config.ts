@@ -13,10 +13,10 @@ export const categoryOrder = {
 
 // Define versions with their status
 export const versions = {
-  '0.1.0': { 
-    label: '0.1.0', 
+  '0.2.0': {
+    label: '0.2.0',
     status: 'beta',
-    statusLabel: 'Beta' 
+    statusLabel: 'Beta'
   }
 };
 
