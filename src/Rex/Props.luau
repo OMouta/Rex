@@ -88,7 +88,7 @@ function Props.setupEventHandler(instance: Instance, eventKey: string, handler: 
 	local eventName = EVENT_MAP[eventKey]
 	if not eventName then
 		warn(`Rex.Props: Unknown event prop "{eventKey}". This event is not supported by Rex.\n` ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/core_concepts/event_handling\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/event_handling\n" ..
 			"💡 Common events: onClick, onRightClick, onHover, onLeave, onFocus, onBlur, onTextChanged, onActivated\n" ..
 			"💡 Also supports: Mouse, Touch, Input, Selection, and GuiObject events - see documentation for full list\n" ..
 			"💡 Tip: Check the spelling and capitalization of your event prop.")
@@ -97,7 +97,7 @@ function Props.setupEventHandler(instance: Instance, eventKey: string, handler: 
 	
 	if typeof(handler) ~= "function" then
 		warn(`Rex.Props: Event handler for "{eventKey}" must be a function, got {typeof(handler)}.\n` ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/core_concepts/event_handling\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/event_handling\n" ..
 			"💡 Example: onClick = function() print('clicked!') end")
 		return
 	end
@@ -123,11 +123,11 @@ function Props.setupEventHandler(instance: Instance, eventKey: string, handler: 
 		end
 	elseif success then
 		warn(`Rex.Props: "{eventName}" is not an event on {instance.ClassName}. This instance type doesn't support this event.\n` ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/core_concepts/event_handling\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/event_handling\n" ..
 			"💡 Tip: Check the Roblox documentation for events supported by this instance type.")
 	else
 		warn(`Rex.Props: Failed to access "{eventName}" on {instance.ClassName}. This may indicate an internal error.\n` ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/core_concepts/event_handling\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/event_handling\n" ..
 			"💡 Tip: Please report this issue if it persists.")
 	end
 end
@@ -140,7 +140,7 @@ function Props.setProperty(instance: Instance, propertyName: string, value: any)
 	
 	if not success then
 		warn(`Rex.Props: Failed to set property "{propertyName}" on {instance.ClassName}.\n` ..
-			`📖 Learn more: https://rex.tigas.dev/docs/0.1.0/core_concepts/reactive_properties\n` ..
+			`📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/reactive_properties\n` ..
 			`💡 Error details: {errorMessage}\n` ..
 			`💡 Tip: Check that "{propertyName}" is a valid property for {instance.ClassName} instances, or if the value type is correct.`)
 	end

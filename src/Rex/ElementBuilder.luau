@@ -2,6 +2,7 @@
 
 local Types = require('./Types')
 local Props = require('./Props')
+local ReactiveProps = require('./ReactiveProps')
 
 type RexElement = Types.RexElement
 type RexProps = Types.RexProps
@@ -274,7 +275,7 @@ function ElementBuilder.instantiate(element: RexElement | RexFragment, parent: I
 	-- Handle nil elements
 	if not element then
 		warn("Rex.ElementBuilder: Attempted to instantiate nil element. This usually happens when a component returns nil or when accessing undefined variables.\n" ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/core_concepts/components\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/components\n" ..
 			"💡 Tip: Check that your component functions return valid RexElement objects, and that all variables are properly defined.")
 		return nil
 	end
@@ -292,7 +293,7 @@ function ElementBuilder.instantiate(element: RexElement | RexFragment, parent: I
 		-- Validate className
 	if not rexElement.className or rexElement.className == "" then
 		warn(`Rex.ElementBuilder: Invalid className: "{rexElement.className}". Elements must have a valid Roblox class name.\n` ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/core_concepts/components#element-creation\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/components#element-creation\n" ..
 			"💡 Tip: Use valid Roblox Instance class names like 'Frame', 'TextLabel', 'TextButton', etc.\n" ..
 			"💡 Example: Rex('Frame') { ... } instead of Rex('') { ... }")
 		return nil
@@ -304,7 +305,7 @@ function ElementBuilder.instantiate(element: RexElement | RexFragment, parent: I
 	end)
 		if not success then
 		error(`Rex.ElementBuilder: Failed to create instance of class "{rexElement.className}". This class name is not a valid Roblox Instance type.\n` ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/core_concepts/components#element-creation\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/components#element-creation\n" ..
 			`💡 Error details: {instance}\n` ..
 			"💡 Tip: Check the Roblox documentation for valid Instance class names, or verify the spelling and capitalization.\n" ..
 			"💡 Common classes: Frame, TextLabel, TextButton, ImageLabel, ScrollingFrame, UIListLayout, etc.")
@@ -343,38 +344,10 @@ function ElementBuilder.instantiate(element: RexElement | RexFragment, parent: I
 	return instance
 end
 
--- Enhanced property application with better event handling
+-- Enhanced property application with universal reactive handling
 function ElementBuilder.applyProps(instance: Instance, props: RexProps): ()
-	for key, value in pairs(props) do
-		if Props.isSpecialProp(key) then
-			-- Handle special Rex properties
-			if key == Props.Children then
-				continue
-			elseif key == Props.Ref then
-				if typeof(value) == "table" then
-					value.current = instance
-				end
-			end		elseif key == "children" or key == "key" then
-			-- Skip children and key - handled separately
-			continue		elseif Props.isEventProp(key) then
-			-- Handle unified event props
-			Props.setupEventHandler(instance, key, value)
-		elseif Props.isPropHelper(value) then
-			-- Apply prop helper
-			value.apply(instance)
-		elseif typeof(key) == "string" then
-			-- Check if value is reactive
-			if ElementBuilder.isRexState(value) then
-				-- Set initial value
-				Props.setProperty(instance, key, value:get())
-				-- Set up reactive binding
-				ElementBuilder.setupReactiveBinding(instance, key, value)
-			else
-				-- Standard property
-				Props.setProperty(instance, key, value)
-			end
-		end
-	end
+	-- Use the new universal reactive system
+	ReactiveProps.applyProps(instance, props)
 end
 
 function ElementBuilder.areCompatible(oldElement: RexElement, newElement: RexElement): boolean
@@ -383,9 +356,9 @@ end
 
 function ElementBuilder.updateInstance(instance: Instance, oldProps: RexProps, newProps: RexProps): ()
 	-- Clean up old reactive bindings
-	ElementBuilder.cleanupReactiveBindings(instance)
-	-- Apply new props
-	ElementBuilder.applyProps(instance, newProps)
+	ReactiveProps.cleanupInstance(instance)
+	-- Apply new props with universal reactive system
+	ReactiveProps.applyProps(instance, newProps)
 end
 
 -- Check if an array has mixed static and reactive children

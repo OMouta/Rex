@@ -13,20 +13,22 @@ Build reactive, component-based user interfaces with Rex—a declarative UI fram
 
 ## ✨ Features
 
-- 🔧 **Declarative Syntax** - Write UI with Templated Luau syntax
-- ⚡ **Reactive State Management** - Automatic UI updates when data changes
+- 🔧 **Declarative Syntax** - Write UI with intuitive Luau syntax
+- ⚡ **Universal Reactivity** - Direct state binding with automatic type conversion
+- 🚀 **Enhanced State Helpers** - Built-in `increment()`, `toggle()`, `push()`, `setPath()` and more
 - 🧩 **Component-Based** - Build reusable, composable UI components
-- 🎯 **Virtual DOM** - Efficient reconciliation and rendering
+- 🎯 **Smart List Rendering** - Simplified `items:each()` syntax with automatic reconciliation
 - 🔄 **Lifecycle Hooks** - useEffect, onMount, onUnmount for component lifecycle
 - 🌐 **Context API** - Share state across component trees without prop drilling
 - 🚀 **Performance Optimized** - Key-based diffing and batched updates
 - 📘 **Type Safety** - Full Luau type support for better development experience
+- 🔮 **Auto-Conversion** - Intelligent type conversion (number→string, Vector2→UDim2, etc.)
 
 ## 🚀 Quick Start
 
 ### Installation
 
-1. Download the latest release from [Releases](https://github.com/your-username/rex/releases)
+1. Download the latest release from [Releases](https://github.com/OMouta/Rex/releases)
 2. Place the `Rex` folder in your `ReplicatedStorage`
 3. Require Rex in your scripts:
 
@@ -51,7 +53,7 @@ local function Counter()
                 BackgroundColor3 = Color3.fromRGB(50, 50, 60),
                 children = {
                     Rex("TextLabel") {
-                        Text = count:map(function(c) return `Count: {c}` end),
+                        Text = count,
                         Size = UDim2.new(1, 0, 0.5, 0),
                         BackgroundTransparency = 1,
                         TextColor3 = Color3.new(1, 1, 1),
@@ -62,7 +64,7 @@ local function Counter()
                         Size = UDim2.new(1, 0, 0.5, 0),
                         Position = UDim2.new(0, 0, 0.5, 0),
                         onClick = function()
-                            count:update(function(current) return current + 1 end)
+                            count:increment()
                         end
                     }
                 }
@@ -80,19 +82,37 @@ Rex.render(Counter, Players.LocalPlayer.PlayerGui)
 
 ### State Management
 
-Rex provides multiple state primitives for different use cases:
+Rex provides powerful state primitives with enhanced operation helpers:
 
 ```lua
--- Basic reactive state
+-- Basic reactive state with enhanced helpers
 local count = Rex.useState(0)
-count:set(10)
-local value = count:get()
+count:increment()      -- Add 1
+count:increment(5)     -- Add 5  
+count:decrement()      -- Subtract 1
+count:set(10)          -- Direct set
+local value = count:get() -- Get current value
 
--- Deep reactive state for complex objects
+-- Boolean state with toggle helper
+local isVisible = Rex.useState(true)
+isVisible:toggle()     -- Flip boolean state
+
+-- Array state with array helpers
+local items = Rex.useState({"apple", "banana"})
+items:push("cherry")           -- Add item
+items:push("date", "elderberry") -- Add multiple
+local removed = items:pop()    -- Remove and return last
+items:removeAt(2)             -- Remove by index
+items:remove("banana")        -- Remove by value
+items:clear()                 -- Clear all
+
+-- Object state with path helpers
 local user = Rex.useDeepState({
     name = "Player",
-    inventory = { coins = 100, items = {} }
+    settings = { theme = "dark", volume = 0.8 }
 })
+user:setPath("settings.theme", "light")    -- Set nested property
+local theme = user:getPath("settings.theme") -- Get nested property
 
 -- Computed state that updates automatically
 local displayText = Rex.useComputed(function()
@@ -124,7 +144,7 @@ Rex("TextButton") {
 
 ### Dynamic Lists
 
-Render lists efficiently with automatic reconciliation:
+Render lists efficiently with the new simplified `each` syntax:
 
 ```lua
 local function TodoList()
@@ -133,20 +153,49 @@ local function TodoList()
     return Rex("ScrollingFrame") {
         children = {
             Rex("UIListLayout") {},
-            todos:map(function(todoList)
-                local children = {}
-                for i, todo in ipairs(todoList) do
-                    table.insert(children, Rex("TextLabel") {
-                        Text = todo,
-                        key = tostring(i), -- Important for efficient updates!
-                        Size = UDim2.new(1, 0, 0, 30)
-                    })
-                end
-                return children
+            
+            -- 🚀 New simplified list rendering!
+            todos:each(function(todo, index)
+                return Rex("Frame") {
+                    Size = UDim2.new(1, 0, 0, 40),
+                    BackgroundColor3 = Color3.fromRGB(40, 40, 60),
+                    key = todo, -- Automatic key-based reconciliation
+                    
+                    children = {
+                        Rex("TextLabel") {
+                            Text = todo,
+                            Size = UDim2.new(0.8, 0, 1, 0),
+                            BackgroundTransparency = 1,
+                            TextColor3 = Color3.new(1, 1, 1),
+                        },
+                        Rex("TextButton") {
+                            Text = "Remove",
+                            Size = UDim2.new(0.2, 0, 1, 0),
+                            Position = UDim2.new(0.8, 0, 0, 0),
+                            onClick = function()
+                                todos:removeAt(index) -- Enhanced helper!
+                            end
+                        }
+                    }
+                }
             end)
         }
     }
 end
+```
+
+**Universal Auto-Conversion**: Rex automatically converts between compatible types:
+
+```lua
+local count = Rex.useState(42)
+local isVisible = Rex.useState(true)
+local position = Rex.useState(Vector2.new(100, 50))
+
+Rex("Frame") {
+    Text = count,           -- number → string (automatic!)
+    Visible = isVisible,    -- boolean → boolean (direct)
+    Position = position,    -- Vector2 → UDim2 (automatic!)
+}
 ```
 
 ### Component Lifecycle
@@ -275,12 +324,14 @@ end
 
 ## 🎯 Performance Tips
 
-1. **Use keys for dynamic lists** to enable efficient reconciliation
-2. **Batch state updates** with `Rex.batch()` for multiple changes
-3. **Memoize expensive computations** with `Rex.useComputed()`
-4. **Prefer flat state structures** over deeply nested objects
-5. **Clean up effects** by returning cleanup functions
-6. **Define event handlers outside render** to avoid recreating functions
+1. **Use the new state helpers** - `count:increment()` instead of `count:update(c => c + 1)`
+2. **Leverage auto-conversion** - Use `Text = numberState` instead of manual mapping
+3. **Use `each` for lists** - Simpler syntax with automatic key management
+4. **Batch state updates** with `Rex.batch()` for multiple simultaneous changes
+5. **Memoize expensive computations** with `Rex.useComputed()`
+6. **Use path helpers for objects** - `user:setPath("settings.theme", "dark")` is more efficient
+7. **Clean up effects** by returning cleanup functions
+8. **Prefer direct state binding** over manual reactive mapping when possible
 
 ## 🤝 Contributing
 
@@ -298,9 +349,13 @@ Rex is [MIT licensed](LICENSE).
 
 ## 🔮 Roadmap
 
-- [ ] **v0.2.0**: Dev tools and debugging utilities  
+- [x] **v0.1.0**: Core reactivity and component system
+- [x] **v0.2.0**: Direct state binding with auto-conversion
 ...
 - [ ] **v1.0.0**: Stable API and comprehensive documentation
+- [ ] **v1.1.0**: Dev tools and debugging utilities
+- [ ] **v1.2.0**: Animation and transition system
+- [ ] **v1.3.0**: Advanced performance optimizations
 
 ---
 
@@ -308,6 +363,6 @@ Rex is [MIT licensed](LICENSE).
 
 ## Built with ❤️ by OMouta
 
-[Documentation](https://rex.tigas.dev) • [Examples](https://rex.tigas.dev/docs/0.1.0/examples/simple_counter) • [API Reference](https://rex.tigas.dev/docs/0.1.0/api_reference/state)
+[Documentation](https://rex.tigas.dev) • [Examples](https://rex.tigas.dev/docs/0.2.0/examples/simple_counter) • [API Reference](https://rex.tigas.dev/docs/0.2.0/api_reference/state)
 
 </div>

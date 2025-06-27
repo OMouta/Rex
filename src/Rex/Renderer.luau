@@ -15,7 +15,7 @@ function Renderer.render(element: RexElement, container: Instance): Instance
 	local instance = ElementBuilder.instantiate(element, container)
 	if not instance then
 		error("Rex.Renderer: Failed to render element. This usually happens when the element has an invalid className or the element is nil.\n" ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/api_reference/rendering#render\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/api_reference/rendering#render\n" ..
 			`💡 Check that your element has a valid Roblox class name. Got element: {element and element.className or "nil"}`)
 	end
 	return instance
@@ -26,7 +26,7 @@ function Renderer.mount(element: RexElement, container: Instance): RenderResult
 	local instance = ElementBuilder.instantiate(element, container)
 	if not instance then
 		error("Rex.Renderer: Failed to mount element. This usually happens when the element has an invalid className or the element is nil.\n" ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/api_reference/rendering#mount\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/api_reference/rendering#mount\n" ..
 			`💡 Check that your element has a valid Roblox class name. Got element: {element and element.className or "nil"}`)
 	end
 	
@@ -53,7 +53,7 @@ function Renderer.reconcile(oldElement: RexElement?, newElement: RexElement, con
 		local instance = ElementBuilder.instantiate(newElement, container)
 		if not instance then
 			error("Rex.Renderer: Failed to create new element during reconciliation. This usually happens when the element has an invalid className.\n" ..
-				"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/core_concepts/reactivity#virtual-dom-reconciliation\n" ..
+				"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/reactivity#virtual-dom-reconciliation\n" ..
 				`💡 Check that your element has a valid Roblox class name. Got element: {newElement and newElement.className or "nil"}`)
 		end
 		return instance
@@ -75,7 +75,7 @@ function Renderer.reconcile(oldElement: RexElement?, newElement: RexElement, con
 		local newInstance = ElementBuilder.instantiate(newElement, container)
 		if not newInstance then
 			error("Rex.Renderer: Failed to create replacement element during reconciliation. This usually happens when the element has an invalid className.\n" ..
-				"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/core_concepts/reactivity#virtual-dom-reconciliation\n" ..
+				"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/reactivity#virtual-dom-reconciliation\n" ..
 				`💡 Check that your element has a valid Roblox class name. Got element: {newElement and newElement.className or "nil"}`)
 		end
 		
@@ -300,7 +300,7 @@ function Renderer.renderWithReconciliation(element: RexElement, container: Insta
 		local instance = ElementBuilder.instantiate(element, container)
 		if not instance then
 			error("Rex.Renderer: Failed to render element with reconciliation. This usually happens when the element has an invalid className.\n" ..
-				"📖 Learn more: https://rex.tigas.dev/docs/0.1.0/api_reference/rendering#renderwithreconciliation\n" ..
+				"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/api_reference/rendering#renderwithreconciliation\n" ..
 				`💡 Check that your element has a valid Roblox class name. Got element: {element and element.className or "nil"}`)
 		end
 		return instance
