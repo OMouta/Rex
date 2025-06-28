@@ -6,7 +6,7 @@ import tailwind from '@astrojs/tailwind';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://your-docs-site.com',
+  site: 'https://rex.tigas.dev/',
   integrations: [
     mdx(),
     sitemap(),

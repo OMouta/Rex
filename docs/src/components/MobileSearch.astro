@@ -1,0 +1,278 @@
+---
+// MobileSearch.astro - Mobile search modal
+---
+
+<!-- Mobile Search Modal -->
+<div id="mobile-search-modal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50">
+  <div class="flex items-start justify-center min-h-screen pt-16 px-4">
+    <div class="bg-zinc-900 rounded-lg w-full max-w-lg border border-zinc-700">
+      <div class="p-4 border-b border-zinc-700">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-medium text-zinc-200">Search Documentation</h3>
+          <button 
+            id="close-mobile-search"
+            class="text-zinc-400 hover:text-zinc-300 transition-colors"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="relative">
+          <input
+            type="search"
+            id="mobile-search-input"
+            placeholder="Search documentation..."
+            class="w-full px-4 py-3 pl-10 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-200 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+            autocomplete="off"
+          />
+          <svg 
+            class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-zinc-400"
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+      </div>
+      
+      <!-- Mobile Search Results -->
+      <div 
+        id="mobile-search-results" 
+        class="max-h-96 overflow-y-auto"
+      >
+        <div id="mobile-search-results-content" class="p-2">
+          <!-- Results will be populated here -->
+        </div>
+        <div id="mobile-search-no-results" class="p-6 text-center text-zinc-400 hidden">
+          No results found
+        </div>
+        <div id="mobile-search-loading" class="p-6 text-center text-zinc-400 hidden">
+          Loading...
+        </div>
+        <div id="mobile-search-initial" class="p-6 text-center text-zinc-500 text-sm">
+          Start typing to search documentation...
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { Index } from 'flexsearch';
+  
+  interface SearchIndexItem {
+    slug: string;
+    title: string;
+    description: string;
+    body: string;
+    category: string;
+    version: string;
+    url: string;
+  }
+
+  class MobileSearchManager {
+    private index: Index | null = null;
+    private documents: SearchIndexItem[] = [];
+    private isLoaded = false;
+    private loadingPromise: Promise<void> | null = null;
+
+    constructor() {
+      this.initialize();
+    }
+
+    private async initialize() {
+      if (this.loadingPromise) return this.loadingPromise;
+      
+      this.loadingPromise = this.loadSearchIndex();
+      await this.loadingPromise;
+    }
+
+    private async loadSearchIndex() {
+      try {
+        this.showLoading(true);
+        
+        const response = await fetch('/api/search-index.json');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        this.documents = await response.json();
+        
+        // Create FlexSearch index
+        this.index = new Index({
+          tokenize: 'forward',
+          preset: 'match',
+          resolution: 9
+        });
+
+        // Add documents to index
+        this.documents.forEach((doc, i) => {
+          const searchableContent = `${doc.title} ${doc.description} ${doc.body} ${doc.category}`;
+          this.index!.add(i, searchableContent);
+        });
+
+        this.isLoaded = true;
+        this.showLoading(false);
+      } catch (error) {
+        console.error('Failed to load search index:', error);
+        this.showLoading(false);
+      }
+    }
+
+    private showLoading(show: boolean) {
+      const loadingEl = document.getElementById('mobile-search-loading');
+      const initialEl = document.getElementById('mobile-search-initial');
+      if (loadingEl) loadingEl.classList.toggle('hidden', !show);
+      if (initialEl) initialEl.classList.toggle('hidden', show);
+    }
+
+    async search(query: string): Promise<SearchIndexItem[]> {
+      if (!this.isLoaded) {
+        await this.initialize();
+      }
+
+      if (!this.index || !query.trim()) {
+        return [];
+      }
+
+      const results = this.index.search(query, { limit: 10 });
+      return results.map(id => this.documents[id as number]).filter(Boolean);
+    }
+  }
+
+  // Initialize mobile search when DOM is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('mobile-search-modal') as HTMLElement;
+    const searchInput = document.getElementById('mobile-search-input') as HTMLInputElement;
+    const closeButton = document.getElementById('close-mobile-search') as HTMLElement;
+    const resultsContainer = document.getElementById('mobile-search-results-content') as HTMLElement;
+    const noResultsEl = document.getElementById('mobile-search-no-results') as HTMLElement;
+    const initialEl = document.getElementById('mobile-search-initial') as HTMLElement;
+    
+    if (!modal || !searchInput || !closeButton || !resultsContainer || !noResultsEl || !initialEl) {
+      return;
+    }
+
+    const searchManager = new MobileSearchManager();
+    let searchTimeout: number;
+
+    // Open modal function
+    const openModal = () => {
+      modal.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
+      setTimeout(() => searchInput.focus(), 100);
+    };
+
+    // Close modal function
+    const closeModal = () => {
+      modal.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+      searchInput.value = '';
+      clearResults();
+    };
+
+    // Clear results
+    const clearResults = () => {
+      resultsContainer.innerHTML = '';
+      noResultsEl.classList.add('hidden');
+      initialEl.classList.remove('hidden');
+    };
+
+    // Perform search
+    const performSearch = async (query: string) => {
+      if (!query.trim()) {
+        clearResults();
+        return;
+      }
+
+      initialEl.classList.add('hidden');
+      noResultsEl.classList.add('hidden');
+
+      try {
+        const results = await searchManager.search(query);
+        displayResults(results);
+      } catch (error) {
+        console.error('Search error:', error);
+        clearResults();
+      }
+    };
+
+    // Display search results
+    const displayResults = (results: SearchIndexItem[]) => {
+      resultsContainer.innerHTML = '';
+
+      if (results.length === 0) {
+        noResultsEl.classList.remove('hidden');
+        return;
+      }
+
+      results.forEach(result => {
+        const resultElement = document.createElement('a');
+        resultElement.href = result.url;
+        resultElement.className = 'block p-4 hover:bg-zinc-800 rounded-lg transition-colors border-b border-zinc-800 last:border-b-0';
+        resultElement.addEventListener('click', closeModal);
+        
+        resultElement.innerHTML = `
+          <div class="font-medium text-zinc-200 mb-1">${escapeHtml(result.title)}</div>
+          <div class="text-xs text-zinc-400 mb-2">${escapeHtml(result.category)}</div>
+          <div class="text-sm text-zinc-500 line-clamp-2">${escapeHtml(result.description)}</div>
+        `;
+        
+        resultsContainer.appendChild(resultElement);
+      });
+    };
+
+    // Event listeners
+    closeButton.addEventListener('click', closeModal);
+    
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      const query = (e.target as HTMLInputElement).value;
+      
+      clearTimeout(searchTimeout);
+      searchTimeout = window.setTimeout(() => {
+        performSearch(query);
+      }, 300);
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+      
+      // Ctrl/Cmd + K to open search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        openModal();
+      }
+    });
+
+    // Export openModal function globally for mobile menu button
+    (window as any).openMobileSearch = openModal;
+  });
+
+  // Utility function to escape HTML
+  function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+</script>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
