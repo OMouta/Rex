@@ -1,6 +1,8 @@
 ---
 import RexLogo from '../assets/RexLogo.webp';
 import { versions } from '../content/config';
+import Search from './Search.astro';
+import MobileSearch from './MobileSearch.astro';
 
 // Define type for version info
 interface VersionInfo {
@@ -33,10 +35,24 @@ const { currentVersion = defaultVersion } = Astro.props;
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
         </svg>
       </button>
+      <button
+        id="mobile-search-button"
+        class="md:hidden p-2 rounded-md text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800 transition-colors"
+        title="Search (Ctrl+K)"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </button>
       <a href="/" class="flex items-center space-x-3">
         <img src={RexLogo.src} alt="Rex Logo" class="h-8 w-8" />
         <span class="text-xl font-bold text-zinc-200">Rex</span>
       </a>
+    </div>
+    
+    <!-- Search Bar (hidden on mobile, shown on larger screens) -->
+    <div class="hidden md:block flex-1 max-w-md mx-8">
+      <Search />
     </div>
     
     <div class="flex items-center space-x-6">
@@ -62,10 +78,14 @@ const { currentVersion = defaultVersion } = Astro.props;
   </div>
 </header>
 
+<!-- Include Mobile Search Modal -->
+<MobileSearch />
+
 <script>
   // Version selector functionality - change URL to include version parameter
   document.addEventListener('DOMContentLoaded', () => {
     const versionSelector = document.getElementById('version-selector') as HTMLSelectElement;
+    const mobileSearchButton = document.getElementById('mobile-search-button') as HTMLElement;
     
     if (versionSelector) {
       versionSelector.addEventListener('change', (e) => {
@@ -78,6 +98,15 @@ const { currentVersion = defaultVersion } = Astro.props;
         
         // Navigate to the same page but with the version parameter updated
         window.location.href = url.toString();
+      });
+    }
+
+    // Mobile search button
+    if (mobileSearchButton) {
+      mobileSearchButton.addEventListener('click', () => {
+        if ((window as any).openMobileSearch) {
+          (window as any).openMobileSearch();
+        }
       });
     }
   });
