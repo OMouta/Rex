@@ -36,6 +36,29 @@ function ElementBuilder.create(className: string, props: RexProps?): RexElement
 	return element
 end
 
+-- Create a wrapped element from an existing Roblox instance
+function ElementBuilder.createDefinedElement(instanceOrName: Instance | string, props: RexProps?): RexElement
+	local element: RexElement = {
+		className = "__RexDefined",
+		props = props or {},
+		children = nil,
+		instance = nil,
+		key = nil,
+		_definedInstance = instanceOrName, -- Store the reference to find or use later
+	}
+	
+	-- Extract key and children from props
+	if props then
+		element.key = props.key
+		local children = props.children or props[Props.Children]
+		if children then
+			element.children = children
+		end
+	end
+	
+	return element
+end
+
 -- Create a Fragment (multiple elements without wrapper)
 function ElementBuilder.createFragment(children: {RexElement}, key: string?): RexFragment
 	return {
@@ -290,25 +313,65 @@ function ElementBuilder.instantiate(element: RexElement | RexFragment, parent: I
 	end
 	
 	local rexElement = element :: RexElement
-		-- Validate className
-	if not rexElement.className or rexElement.className == "" then
-		warn(`Rex.ElementBuilder: Invalid className: "{rexElement.className}". Elements must have a valid Roblox class name.\n` ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/components#element-creation\n" ..
-			"💡 Tip: Use valid Roblox Instance class names like 'Frame', 'TextLabel', 'TextButton', etc.\n" ..
-			"💡 Example: Rex('Frame') { ... } instead of Rex('') { ... }")
-		return nil
-	end
 	
-	-- Create the instance
-	local success, instance = pcall(function()
-		return Instance.new(rexElement.className)
-	end)
+	local instance: Instance
+	
+	-- Handle defined elements (Rex.define()) - check this FIRST before validation
+	if rexElement.className == "__RexDefined" and rexElement._definedInstance then
+		if typeof(rexElement._definedInstance) == "Instance" then
+			-- Direct instance reference
+			instance = rexElement._definedInstance :: Instance
+		elseif typeof(rexElement._definedInstance) == "string" then
+			-- String name - find in parent
+			if not parent then
+				error(`Rex.define: Cannot find child "{rexElement._definedInstance}" because no parent context is available.\n` ..
+					"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/api_reference/define\n" ..
+					"💡 Tip: When using Rex.define with string names, ensure the element is used within a parent that contains the named child.")
+			end
+			
+			local childInstance = parent:FindFirstChild(rexElement._definedInstance :: string)
+			if not childInstance then
+				error(`Rex.define: Child "{rexElement._definedInstance}" not found in parent "{parent.Name}".\n` ..
+					"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/api_reference/define\n" ..
+					"💡 Tip: Check that the child name is spelled correctly and exists in the parent Instance.\n" ..
+					`💡 Available children: {table.concat(ElementBuilder.getChildNames(parent), ", ")}`)
+			end
+			
+			instance = childInstance
+		else
+			error(`Rex.define: Invalid instance type. Expected Instance or string, got {typeof(rexElement._definedInstance)}.\n` ..
+				"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/api_reference/define\n" ..
+				"💡 Example: Rex.define(instance) or Rex.define('ChildName')")
+		end
+	elseif rexElement.className == "__RexDefined" then
+		-- Defined element without instance reference - this is an error
+		error("Rex.define: Element marked as defined but no instance reference found. This is likely an internal error.\n" ..
+			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/api_reference/define\n" ..
+			"💡 Tip: Please report this as a bug if you encounter it.")
+	else
+		-- Regular element creation
+		-- Validate className
+		if not rexElement.className or rexElement.className == "" then
+			warn(`Rex.ElementBuilder: Invalid className: "{rexElement.className}". Elements must have a valid Roblox class name.\n` ..
+				"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/components#element-creation\n" ..
+				"💡 Tip: Use valid Roblox Instance class names like 'Frame', 'TextLabel', 'TextButton', etc.\n" ..
+				"💡 Example: Rex('Frame') { ... } instead of Rex('') { ... }")
+			return nil
+		end
+		
+		-- Create the instance
+		local success, result = pcall(function()
+			return Instance.new(rexElement.className)
+		end)
 		if not success then
-		error(`Rex.ElementBuilder: Failed to create instance of class "{rexElement.className}". This class name is not a valid Roblox Instance type.\n` ..
-			"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/components#element-creation\n" ..
-			`💡 Error details: {instance}\n` ..
-			"💡 Tip: Check the Roblox documentation for valid Instance class names, or verify the spelling and capitalization.\n" ..
-			"💡 Common classes: Frame, TextLabel, TextButton, ImageLabel, ScrollingFrame, UIListLayout, etc.")
+			error(`Rex.ElementBuilder: Failed to create instance of class "{rexElement.className}". This class name is not a valid Roblox Instance type.\n` ..
+				"📖 Learn more: https://rex.tigas.dev/docs/0.2.0/core_concepts/components#element-creation\n" ..
+				`💡 Error details: {result}\n` ..
+				"💡 Tip: Check the Roblox documentation for valid Instance class names, or verify the spelling and capitalization.\n" ..
+				"💡 Common classes: Frame, TextLabel, TextButton, ImageLabel, ScrollingFrame, UIListLayout, etc.")
+		end
+		
+		instance = result
 	end
 	
 	-- Apply properties
@@ -316,6 +379,9 @@ function ElementBuilder.instantiate(element: RexElement | RexFragment, parent: I
 		-- Handle children with enhanced diffing
 	local children = rexElement.children or rexElement.props.children or rexElement.props[Props.Children]
 	if children then
+		-- Resolve any defined children references before processing
+		children = ElementBuilder.resolveDefinedChildren(children, instance)
+		
 		-- Check if children need reactive handling
 		if ElementBuilder.isReactiveChildren(children) then
 			ElementBuilder.setupReactiveChildren(instance, children)
@@ -333,8 +399,13 @@ function ElementBuilder.instantiate(element: RexElement | RexFragment, parent: I
 		end
 	end
 	
-	-- Set parent
-	if parent then
+	-- Set parent (but not for defined instances that already have the correct parent)
+	if parent and (rexElement.className ~= "__RexDefined" or instance.Parent ~= parent) then
+		-- For defined instances, only reparent if necessary to avoid unnecessary moves
+		if rexElement.className == "__RexDefined" and instance.Parent and instance.Parent ~= parent then
+			warn(`Rex.define: Reparenting defined instance "{instance.Name}" from "{instance.Parent.Name}" to "{parent.Name}". ` ..
+				"This may cause visual glitches. Consider organizing your UI hierarchy to avoid reparenting defined instances.")
+		end
 		instance.Parent = parent
 	end
 	
@@ -351,6 +422,12 @@ function ElementBuilder.applyProps(instance: Instance, props: RexProps): ()
 end
 
 function ElementBuilder.areCompatible(oldElement: RexElement, newElement: RexElement): boolean
+	-- For defined elements, check if they reference the same instance
+	if oldElement.className == "__RexDefined" and newElement.className == "__RexDefined" then
+		return oldElement._definedInstance == newElement._definedInstance
+	end
+	
+	-- For regular elements, check className and key
 	return oldElement.className == newElement.className and oldElement.key == newElement.key
 end
 
@@ -524,6 +601,61 @@ function ElementBuilder.cleanupReactiveBindings(instance: Instance): ()
 		end
 		reactiveBindings[instance] = nil
 	end
+end
+
+-- Resolve defined children references to actual elements
+function ElementBuilder.resolveDefinedChildren(children: RexChildren, parentInstance: Instance): RexChildren
+	if not children then
+		return nil
+	end
+	
+	-- Handle single element
+	if typeof(children) == "table" and (children :: any).className then
+		local element = children :: RexElement
+		if element.className == "__RexDefined" and typeof(element._definedInstance) == "string" then
+			-- Resolve string reference to actual instance
+			local childInstance = parentInstance:FindFirstChild(element._definedInstance :: string)
+			if childInstance then
+				-- Create a copy with resolved instance
+				local resolvedElement: RexElement = {
+					className = "__RexDefined",
+					props = element.props,
+					children = element.children,
+					instance = nil,
+					key = element.key,
+					_definedInstance = childInstance,
+				}
+				return resolvedElement
+			end
+		end
+		return element
+	end
+	
+	-- Handle array of children
+	if typeof(children) == "table" and not (children :: any).className then
+		local resolvedChildren: {RexElement} = {}
+		for i, child in ipairs(children :: {any}) do
+			if child then
+				local resolved = ElementBuilder.resolveDefinedChildren(child, parentInstance)
+				if resolved then
+					resolvedChildren[i] = resolved :: RexElement
+				end
+			end
+		end
+		return resolvedChildren
+	end
+	
+	-- Return as-is for other types (reactive states, etc.)
+	return children
+end
+
+-- Helper function to get child names for error messages
+function ElementBuilder.getChildNames(parent: Instance): {string}
+	local names = {}
+	for _, child in pairs(parent:GetChildren()) do
+		table.insert(names, child.Name)
+	end
+	return names
 end
 
 return ElementBuilder

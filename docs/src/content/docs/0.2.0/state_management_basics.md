@@ -119,6 +119,201 @@ Every state object has several methods:
 - `state:set(newValue)` - Set a new value
 - `state:update(function)` - Update based on current value
 - `state:map(function)` - Create a computed value
+- `state:each(function)` - Reactive list rendering for arrays
+
+## Practical Example: Task Manager
+
+Here's a complete example combining state helpers with reactive list rendering:
+
+```luau
+local function TaskManager()
+    local tasks = Rex.useState({
+        {id = 1, text = "Learn Rex", completed = false},
+        {id = 2, text = "Build UI", completed = false}
+    })
+    local newTaskText = Rex.useState("")
+    local nextId = Rex.useState(3)
+    
+    local function addTask()
+        local text = newTaskText:get():gsub("^%s+", ""):gsub("%s+$", "") -- Trim whitespace
+        if text ~= "" then
+            tasks:push({
+                id = nextId:get(),
+                text = text,
+                completed = false
+            })
+            nextId:increment() -- Use increment helper
+            newTaskText:set("") -- Clear input
+        end
+    end
+    
+    local function toggleTask(taskId)
+        tasks:update(function(currentTasks)
+            local newTasks = table.clone(currentTasks)
+            for i, task in ipairs(newTasks) do
+                if task.id == taskId then
+                    newTasks[i].completed = not newTasks[i].completed
+                    break
+                end
+            end
+            return newTasks
+        end)
+    end
+    
+    local function removeTask(taskId)
+        tasks:update(function(currentTasks)
+            local newTasks = {}
+            for _, task in ipairs(currentTasks) do
+                if task.id ~= taskId then
+                    table.insert(newTasks, task)
+                end
+            end
+            return newTasks
+        end)
+    end
+    
+    return Rex("Frame") {
+        Size = UDim2.fromOffset(400, 500),
+        Position = UDim2.fromScale(0.5, 0.5),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = Color3.fromRGB(40, 44, 52),
+        
+        children = {
+            Rex("UIListLayout") { Padding = UDim.new(0, 10) },
+            Rex("UIPadding") { 
+                PaddingTop = UDim.new(0, 20),
+                PaddingLeft = UDim.new(0, 20),
+                PaddingRight = UDim.new(0, 20),
+                PaddingBottom = UDim.new(0, 20)
+            },
+            
+            -- Title with task count
+            Rex("TextLabel") {
+                Text = tasks:map(function(taskList)
+                    local completed = 0
+                    for _, task in ipairs(taskList) do
+                        if task.completed then completed = completed + 1 end
+                    end
+                    return `Tasks: {completed}/{#taskList} completed`
+                end),
+                Size = UDim2.new(1, 0, 0, 40),
+                BackgroundTransparency = 1,
+                TextColor3 = Color3.new(1, 1, 1),
+                TextScaled = true,
+                LayoutOrder = 1
+            },
+            
+            -- Add task input
+            Rex("Frame") {
+                Size = UDim2.new(1, 0, 0, 40),
+                BackgroundTransparency = 1,
+                LayoutOrder = 2,
+                
+                children = {
+                    Rex("UIListLayout") {
+                        FillDirection = Enum.FillDirection.Horizontal,
+                        Padding = UDim.new(0, 10)
+                    },
+                    
+                    Rex("TextBox") {
+                        Text = newTaskText,
+                        PlaceholderText = "Enter new task...",
+                        Size = UDim2.new(0.8, 0, 1, 0),
+                        BackgroundColor3 = Color3.fromRGB(60, 64, 72),
+                        TextColor3 = Color3.new(1, 1, 1),
+                        onTextChanged = function(textBox)
+                            newTaskText:set(textBox.Text)
+                        end,
+                        LayoutOrder = 1
+                    },
+                    
+                    Rex("TextButton") {
+                        Text = "Add",
+                        Size = UDim2.new(0.2, 0, 1, 0),
+                        BackgroundColor3 = Color3.fromRGB(67, 181, 129),
+                        TextColor3 = Color3.new(1, 1, 1),
+                        onClick = addTask,
+                        LayoutOrder = 2
+                    }
+                }
+            },
+            
+            -- Task list using :each() method
+            Rex("ScrollingFrame") {
+                Size = UDim2.new(1, 0, 1, -100),
+                BackgroundTransparency = 1,
+                LayoutOrder = 3,
+                
+                children = {
+                    Rex("UIListLayout") { Padding = UDim.new(0, 5) },
+                    
+                    tasks:each(function(task, index)
+                        return Rex("Frame") {
+                            Size = UDim2.new(1, 0, 0, 50),
+                            BackgroundColor3 = task.completed 
+                                and Color3.fromRGB(67, 181, 129)  -- Green when completed
+                                or Color3.fromRGB(60, 64, 72),    -- Gray when pending
+                            key = tostring(task.id), -- Use stable ID as key
+                            
+                            children = {
+                                Rex("UIListLayout") {
+                                    FillDirection = Enum.FillDirection.Horizontal,
+                                    VerticalAlignment = Enum.VerticalAlignment.Center,
+                                    Padding = UDim.new(0, 10)
+                                },
+                                
+                                -- Task text
+                                Rex("TextLabel") {
+                                    Text = task.text,
+                                    Size = UDim2.new(0.6, 0, 1, 0),
+                                    BackgroundTransparency = 1,
+                                    TextColor3 = Color3.new(1, 1, 1),
+                                    TextStrikethrough = task.completed,
+                                    TextXAlignment = Enum.TextXAlignment.Left,
+                                    LayoutOrder = 1
+                                },
+                                
+                                -- Toggle button
+                                Rex("TextButton") {
+                                    Text = task.completed and "↶" or "✓",
+                                    Size = UDim2.new(0.2, 0, 0.8, 0),
+                                    BackgroundColor3 = task.completed
+                                        and Color3.fromRGB(255, 200, 100)
+                                        or Color3.fromRGB(100, 200, 255),
+                                    onClick = function()
+                                        toggleTask(task.id)
+                                    end,
+                                    LayoutOrder = 2
+                                },
+                                
+                                -- Remove button
+                                Rex("TextButton") {
+                                    Text = "✕",
+                                    Size = UDim2.new(0.2, 0, 0.8, 0),
+                                    BackgroundColor3 = Color3.fromRGB(231, 76, 60),
+                                    TextColor3 = Color3.new(1, 1, 1),
+                                    onClick = function()
+                                        removeTask(task.id)
+                                    end,
+                                    LayoutOrder = 3
+                                }
+                            }
+                        }
+                    end)
+                }
+            }
+        }
+    }
+end
+```
+
+This example demonstrates:
+
+- **Array helpers**: `push()` to add tasks, `increment()` for ID management
+- **Reactive lists**: `tasks:each()` for dynamic task rendering  
+- **State mapping**: `tasks:map()` for computed task count display
+- **Proper keys**: Using `task.id` for efficient list updates
+- **Interactive state**: Toggle and remove operations with state updates
 
 ## Reactive Properties
 

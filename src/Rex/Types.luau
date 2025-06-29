@@ -7,6 +7,7 @@ export type RexElement = {
 	children: RexChildren?,
 	instance: Instance?,
 	key: string?, -- Added key support for stable diffing
+	_definedInstance: (Instance | string)?, -- For Rex.define() wrapped instances
 }
 
 -- Props can contain standard Roblox properties, special Rex properties, and events

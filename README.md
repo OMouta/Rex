@@ -184,6 +184,47 @@ local function TodoList()
 end
 ```
 
+### Wrapping Existing UI with Rex.define
+
+Transform Studio-created UI into reactive Rex components effortlessly:
+
+```lua
+-- Your existing UI hierarchy from Studio
+local existingUI = script.Parent.ShopFrame
+
+-- Wrap it with Rex reactivity!
+local ShopComponent = Rex.define(existingUI) {
+    -- Override properties reactively
+    Visible = isShopOpen,
+    BackgroundColor3 = theme:map(function(t) return t.primary end),
+    
+    -- Reference children by name and enhance them
+    children = {
+        -- Wrap the buy button and add click handler
+        buyButton = Rex.define() {
+            onClick = function()
+                purchaseItem(selectedItem:get())
+            end,
+            BackgroundColor3 = canAfford:map(function(affordable)
+                return affordable and Color3.new(0, 1, 0) or Color3.new(0.5, 0.5, 0.5)
+            end)
+        },
+        
+        -- Wrap the item list with reactive content
+        itemList = {
+            children = items:each(function(item)
+                return ItemComponent { item = item, key = item.id }
+            end)
+        }
+    }
+}
+
+-- Mount your enhanced component
+Rex.render(ShopComponent, playerGui)
+```
+
+**Perfect for migration**: Start with Studio UI, then gradually add Rex features like state management, reactive properties, and event handling without rebuilding everything from scratch!
+
 **Universal Auto-Conversion**: Rex automatically converts between compatible types:
 
 ```lua
@@ -351,7 +392,7 @@ Rex is [MIT licensed](LICENSE).
 
 - [x] **v0.1.0**: Core reactivity and component system
 - [x] **v0.2.0**: Direct state binding with auto-conversion
-...
+- [x] **v0.3.0**: Rex.define for wrapping and enhancing existing Roblox UI instances
 - [ ] **v1.0.0**: Stable API and comprehensive documentation
 - [ ] **v1.1.0**: Dev tools and debugging utilities
 - [ ] **v1.2.0**: Animation and transition system
