@@ -251,8 +251,22 @@ function Rex.Provider<T>(props: {context: RexContext<T>, value: T | RexState<T>,
 	}
 end
 
+-- Enhanced wrapping system for existing instances
+--[[
+Wraps an existing Roblox Instance with Rex functionality.
+This allows you to enhance Studio-created UI with reactive props and event handlers.
+`Docs` https://rex.tigas.dev/docs/0.2.0/api_reference/define
+@param instance The Roblox Instance to wrap, or a string name to find child by name.
+@return Function that accepts props and returns a wrapped RexElement.
+]]
+function Rex.define(instance: Instance | string): (props: RexProps?) -> RexElement
+	return function(props: RexProps?): RexElement
+		return ElementBuilder.createDefinedElement(instance, props)
+	end
+end
+
 -- Version info
-Rex.VERSION = "0.2.0"
+Rex.VERSION = "0.2.1"
 
 -- Internal utilities for better error messages
 local function _formatRexError(module: string, message: string, docPath: string?, tip: string?): string

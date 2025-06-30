@@ -44,10 +44,82 @@ Creates a basic reactive state object with helper methods.
 - `removeAt(index: number): ()` — Removes item at specified index
 - `remove(value: any): ()` — Removes first occurrence of value
 - `clear(): ()` — Removes all items from array
+- `each(mapFn: (item: any, index: number) -> any): any` — Maps over array items for reactive list rendering
 
 ### Object State Helpers
 
 - `setPath(path: string, value: any): ()` — Sets nested property using dot notation
+- `getPath(path: string): any` — Gets nested property using dot notation
+
+**Array Example:**
+
+```luau
+local items = Rex.useState({"apple", "banana"})
+
+-- Enhanced array helpers
+items:push("cherry")           -- ["apple", "banana", "cherry"]
+items:push("date", "elderberry") -- Add multiple
+local last = items:pop()       -- Returns "elderberry", array: ["apple", "banana", "cherry", "date"]
+items:removeAt(2)             -- Remove index 2: ["apple", "cherry", "date"] 
+items:remove("cherry")        -- Remove by value: ["apple", "date"]
+items:clear()                 -- []
+
+-- Enhanced list rendering with :each()
+local listUI = Rex("ScrollingFrame") {
+    children = {
+        Rex("UIListLayout") {},
+        items:each(function(item, index)  -- Simplified syntax for reactive lists!
+            return Rex("TextLabel") {
+                Text = `{index}: {item}`,
+                key = item -- Important: Use keys for efficient reconciliation
+            }
+        end)
+    }
+}
+```
+
+**Advanced List Rendering with :each():**
+
+```luau
+local todos = Rex.useState({
+    {id = 1, text = "Learn Rex", completed = false},
+    {id = 2, text = "Build UI", completed = true}
+})
+
+-- Complex list rendering with reactive properties
+Rex("ScrollingFrame") {
+    children = {
+        Rex("UIListLayout") {},
+        todos:each(function(todo, index)
+            return Rex("Frame") {
+                Size = UDim2.new(1, 0, 0, 40),
+                BackgroundColor3 = todo.completed 
+                    and Color3.fromRGB(100, 255, 100)  -- Green for completed
+                    or Color3.fromRGB(255, 255, 255),  -- White for pending
+                key = tostring(todo.id), -- Use stable ID as key
+                
+                children = {
+                    Rex("TextLabel") {
+                        Text = todo.text,
+                        TextStrikethrough = todo.completed
+                    },
+                    Rex("TextButton") {
+                        Text = "✓",
+                        onClick = function()
+                            todos:update(function(currentTodos)
+                                local newTodos = table.clone(currentTodos)
+                                newTodos[index].completed = not newTodos[index].completed
+                                return newTodos
+                            end)
+                        end
+                    }
+                }
+            }
+        end)
+    }
+}
+```
+
 - `getPath(path: string): any` — Gets nested property using dot notation
 
 **Example:**

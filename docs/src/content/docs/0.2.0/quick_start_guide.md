@@ -698,9 +698,10 @@ Reactive lists that update when data changes.
 Now that you've built your first Rex app, explore these areas:
 
 1. **[Core Concepts](./core_concepts/states)** - Deeper understanding of Rex's systems
-2. **[Advanced Features](./advanced_features/memoization)** - Performance optimization and complex patterns
-3. **[API Reference](./api_reference/state)** - Complete API documentation
-4. **[Examples](./examples/dynamic_list)** - More real-world examples
+2. **[Wrapping Existing UI](./core_concepts/wrapping_existing_ui)** - Use `Rex.define()` to enhance Studio-created UI
+3. **[Advanced Features](./advanced_features/memoization)** - Performance optimization and complex patterns
+4. **[API Reference](./api_reference/state)** - Complete API documentation
+5. **[Examples](./examples/dynamic_list)** - More real-world examples
 
 ## Challenges to Try
 

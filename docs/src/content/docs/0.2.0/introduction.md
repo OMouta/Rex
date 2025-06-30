@@ -22,6 +22,7 @@ Rex is a modern UI framework that brings the best practices from web development
 - 📘 **Type Safety**: Full Luau type support for better development experience
 - 🎮 **Event Handling**: Unified camelCase event system (`onClick`, `onHover`, etc.)
 - 🔮 **Auto-Conversion**: Intelligent type conversion (number→string, Vector2→UDim2, etc.)
+- 🏗️ **Legacy Integration**: Wrap existing Studio UI with `Rex.define()` for gradual migration
 
 ## Philosophy
 
@@ -108,7 +109,7 @@ Ready to start building with Rex? Follow this learning path:
 
 After completing the getting started guides, explore:
 
-- **[Core Concepts](./core_concepts/state)** - Deep dive into Rex's architecture
+- **[Core Concepts](./core_concepts/states)** - Deep dive into Rex's architecture
 - **[Examples](./examples/simple_counter)** - Real-world component examples  
 - **[API Reference](./api_reference/state)** - Complete API documentation
 - **[Advanced Features](./advanced_features/memoization)** - Performance and complex patterns
