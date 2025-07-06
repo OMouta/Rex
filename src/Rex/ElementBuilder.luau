@@ -146,7 +146,8 @@ function ElementBuilder.reconcileChildren(
 		end
 		return
 	end
-		if not oldChildren then
+	
+	if not oldChildren then
 		-- Add all new children (filter out nil elements)
 		for _, child in ipairs(newChildren) do
 			if child then
@@ -162,7 +163,8 @@ function ElementBuilder.reconcileChildren(
 	
 	-- Track which elements are reused
 	local reusedKeys: {[string]: boolean} = {}
-		-- Phase 1: Update existing elements and mark reused
+	
+	-- Phase 1: Update existing elements and mark reused
 	for i, newChild in ipairs(newChildren) do
 		-- Skip nil children
 		if not newChild then
@@ -171,7 +173,8 @@ function ElementBuilder.reconcileChildren(
 		
 		local key = newChild.key or tostring(i)
 		local oldChild = oldKeyMap[key]
-				if oldChild then
+		
+		if oldChild then
 			-- Element exists, update it
 			reusedKeys[key] = true
 			if oldChild.instance and ElementBuilder.areCompatible(oldChild, newChild) then
@@ -376,7 +379,8 @@ function ElementBuilder.instantiate(element: RexElement | RexFragment, parent: I
 	
 	-- Apply properties
 	ElementBuilder.applyProps(instance, rexElement.props)
-		-- Handle children with enhanced diffing
+	
+	-- Handle children with enhanced diffing
 	local children = rexElement.children or rexElement.props.children or rexElement.props[Props.Children]
 	if children then
 		-- Resolve any defined children references before processing
@@ -609,6 +613,17 @@ function ElementBuilder.resolveDefinedChildren(children: RexChildren, parentInst
 		return nil
 	end
 	
+	-- IMPORTANT: Check for reactive objects first, before treating as regular arrays
+	-- If it's a reactive children object (from items:each), return as-is
+	if typeof(children) == "table" and (children :: any).__rexReactiveChildren == true then
+		return children
+	end
+	
+	-- If it's a reactive state object, return as-is
+	if ElementBuilder.isRexState(children) then
+		return children
+	end
+	
 	-- Handle single element
 	if typeof(children) == "table" and (children :: any).className then
 		local element = children :: RexElement
@@ -631,7 +646,7 @@ function ElementBuilder.resolveDefinedChildren(children: RexChildren, parentInst
 		return element
 	end
 	
-	-- Handle array of children
+	-- Handle array of children (only if it's actually a plain array)
 	if typeof(children) == "table" and not (children :: any).className then
 		local resolvedChildren: {RexElement} = {}
 		for i, child in ipairs(children :: {any}) do
