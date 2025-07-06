@@ -266,7 +266,7 @@ function Rex.define(instance: Instance | string): (props: RexProps?) -> RexEleme
 end
 
 -- Version info
-Rex.VERSION = "0.2.1"
+Rex.VERSION = "0.2.2"
 
 -- Internal utilities for better error messages
 local function _formatRexError(module: string, message: string, docPath: string?, tip: string?): string
