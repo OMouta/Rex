@@ -157,7 +157,7 @@ function State.createDeepState<T>(initialValue: T): RexState<T>
 					local element = mapFn(item, i)
 					if element then
 						-- Ensure elements have keys for efficient reconciliation
-						if typeof(element) == "table" and element.props and not element.key then
+						if typeof(element) == "table" and not element.key then
 							element.key = tostring(i)
 						end
 						table.insert(elements, element)
@@ -379,7 +379,7 @@ function State.createState<T>(initialValue: T): RexState<T>
 						local element = mapFn(item, i)
 						if element then
 							-- Ensure elements have keys for efficient reconciliation
-							if typeof(element) == "table" and element.props and not element.key then
+							if typeof(element) == "table" and not element.key then
 								element.key = tostring(i)
 							end
 							table.insert(elements, element)
