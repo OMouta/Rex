@@ -1,6 +1,10 @@
 /Rex.rbxlx
 /*.rbxlx.lock
 /*.rbxl.lock
+
+/*.rbxlx
+/*.rbxl
+
 /sourcemap.json
 
 /*/copilot-instructions.md
