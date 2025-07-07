@@ -20,9 +20,39 @@ For the latest version or specific releases:
 3. In Roblox Studio, right-click **ReplicatedStorage**
 4. Select **Insert from File** and choose the downloaded file
 
-### Method 2: Rojo with wally (soon)
+### Method 2: Rojo with Jelly
 
-Rex will be added to wally as soon as possible
+1. Install Jelly with aftman
+
+    ```bash
+    aftman add OMouta/jelly
+    ```
+
+2. Install rex with Jelly
+
+    ```bash
+    jelly install omouta/rex
+    ```
+
+### Method 3: Rojo with Wally
+
+1. Install Wally with aftman
+
+    ```bash
+    aftman add UpliftGames/wally
+    ```
+
+2. Add rex to wally.toml
+
+    ```toml
+    rex = "omouta/rex@0.2.2-beta"
+    ```
+
+3. Install rex with Wally
+
+    ```bash
+    wally install
+    ```
 
 ## Project Structure
 

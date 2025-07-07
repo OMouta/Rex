@@ -28,9 +28,26 @@ Build reactive, component-based user interfaces with Rex—a declarative UI fram
 
 ### Installation
 
-1. Download the latest release from [Releases](https://github.com/OMouta/Rex/releases)
-2. Place the `Rex` folder in your `ReplicatedStorage`
-3. Require Rex in your scripts:
+#### Manual
+
+- Download the latest release from [Releases](https://github.com/OMouta/Rex/releases)
+- Place the `Rex` folder in your `ReplicatedStorage`
+
+#### Jelly (with Rojo)
+
+```bash
+jelly install omouta/rex
+```
+
+#### Wally (with Rojo)
+
+- Add `rex = "omouta/rex@0.2.2-beta"` to your wally.toml and then run:
+
+```bash
+wally install
+```
+
+### Require Rex in your scripts
 
 ```lua
 local Rex = require(game.ReplicatedStorage.Rex)
