@@ -41,7 +41,7 @@ jelly install omouta/rex
 
 #### Wally (with Rojo)
 
-- Add `rex = "omouta/rex@0.2.2-beta"` to your wally.toml and then run:
+- Add `rex = "omouta/rex@0.2.2"` to your wally.toml and then run:
 
 ```bash
 wally install
