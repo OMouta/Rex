@@ -1,0 +1,20 @@
+{
+  "name": "omouta/rex",
+  "version": "0.2.2",
+  "description": "Build reactive, component-based user interfaces with Rex—a declarative UI framework inspired by React/VueJs patterns, designed specifically for Roblox and Luau.",
+  "license": "MIT",
+  "authors": [
+    "omouta"
+  ],
+  "realm": "shared",
+  "include": [
+    "src",
+    "src/**",
+    "default.project.json",
+    "jelly.json",
+    "jelly-lock.json"
+  ],
+  "scripts": {
+    "build": "rojo build rex.project.json --output build/Rex.rbxm"
+  }
+}

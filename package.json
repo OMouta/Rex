@@ -2,11 +2,9 @@
   "name": "rex-monorepo",
   "private": true,
   "scripts": {
-    "build": "rojo build rex.project.json --output build/Rex.rbxm",
-
-    "docs:dev": "npm run dev --prefix docs",
-    "docs:build": "npm run build --prefix docs",
-    "docs:preview": "npm run preview --prefix docs",
-    "docs:install": "npm install --prefix docs"
+    "dev": "npm run dev --prefix docs",
+    "build": "npm run build --prefix docs",
+    "preview": "npm run preview --prefix docs",
+    "install": "npm install --prefix docs"
   }
 }
