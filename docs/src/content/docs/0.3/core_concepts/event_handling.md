@@ -4,7 +4,7 @@ description: "Learn how to handle user interactions in Rex with unified camelCas
 category: "Core Concepts"
 order: 2
 
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 Rex provides a unified, intuitive event handling system that uses camelCase naming conventions familiar to web developers. Instead of remembering Roblox's specific event names, you can use consistent, predictable event handlers.

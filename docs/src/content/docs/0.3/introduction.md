@@ -4,7 +4,7 @@ description: "Rex is a modern, declarative UI framework for Roblox, written in L
 category: "Getting Started"
 order: 1
  
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 Rex is a modern UI framework that brings the best practices from web development to Roblox. Built with Luau and inspired by React and Vue.js, Rex makes building complex, interactive UIs both intuitive and efficient.

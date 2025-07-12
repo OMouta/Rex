@@ -4,7 +4,7 @@ description: "Get up and running with Rex in under 10 minutes with this fast-tra
 category: "Getting Started"
 order: 3
 
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 Ready to start building with Rex? This quick start guide will have you creating interactive UIs in under 10 minutes. We'll build a simple todo app that demonstrates all of Rex's core features.

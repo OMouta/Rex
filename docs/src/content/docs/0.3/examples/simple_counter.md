@@ -4,7 +4,7 @@ description: "Learn Rex fundamentals with a simple counter that demonstrates rea
 category: "Examples"
 order: 1
 
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 This example demonstrates the core concepts of Rex through a simple counter application using the new universal reactivity system. You'll learn about direct state binding, auto-conversion, enhanced state helpers, and component lifecycle.

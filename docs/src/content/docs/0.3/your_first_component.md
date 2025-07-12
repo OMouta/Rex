@@ -4,7 +4,7 @@ description: "Learn to create your first Rex component with this hands-on tutori
 category: "Getting Started"
 order: 5
 
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 In this tutorial, you'll create your first Rex component from scratch. We'll build a simple interactive button that demonstrates Rex's core concepts: declarative syntax, state management, and event handling.

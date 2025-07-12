@@ -4,7 +4,7 @@ description: "Learn how to create dynamic UIs with Rex's universal reactivity sy
 category: "Core Concepts"
 order: 3
 
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 Rex features a **universal reactivity system** that automatically detects and handles reactive values, making it incredibly simple to create dynamic UIs. You can bind state directly to any property, and Rex will automatically convert types and handle updates.

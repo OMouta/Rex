@@ -4,7 +4,7 @@ description: "Creating reusable logic and isolated state scopes in Rex component
 category: "Core Concepts"
 order: 2
 
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 Component scopes in Rex allow you to create reusable logic patterns and isolate state within specific parts of your application. This is similar to custom hooks in React.

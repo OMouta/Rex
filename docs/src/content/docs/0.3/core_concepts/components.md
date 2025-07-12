@@ -4,7 +4,7 @@ description: "Learn how to build reusable, composable components in Rex and patt
 category: "Core Concepts"
 order: 5
 version: "0.2"
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 Components are the building blocks of Rex applications. They are functions that return Rex elements and can accept props for customization. Rex promotes composition over inheritance, allowing you to build complex UIs from simple, reusable components.

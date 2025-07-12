@@ -4,7 +4,7 @@ description: "How to install Rex and set up your development environment for bui
 category: "Getting Started"
 order: 2
 
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 This guide will walk you through installing Rex and setting up your development environment to start building reactive UIs for Roblox using Rex's new universal reactivity system.
@@ -45,7 +45,7 @@ For the latest version or specific releases:
 2. Add rex to wally.toml
 
     ```toml
-    rex = "omouta/rex@0..3.2-beta"
+    rex = "omouta/rex@0.3.2-beta"
     ```
 
 3. Install rex with Wally

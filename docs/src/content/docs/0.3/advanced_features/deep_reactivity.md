@@ -4,7 +4,7 @@ description: "Managing complex nested data structures with Rex's deep reactive s
 category: "Advanced Features"
 order: 1
 
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 Rex supports deep reactive states that can track changes to nested tables and complex data structures. This enables you to work with sophisticated application state while maintaining the simplicity of reactive updates throughout your component tree.

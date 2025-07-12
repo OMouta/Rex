@@ -4,7 +4,7 @@ description: "Sharing state and logic across components with React-like context 
 category: "Core Concepts"
 order: 4
 
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 Contexts in Rex provide a way to share state and functionality across multiple components without prop drilling. This is similar to React's Context API and is perfect for themes, user authentication, global settings, and other application-wide state.

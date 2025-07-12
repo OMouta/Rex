@@ -4,7 +4,7 @@ description: "Managing component lifecycle events and side effects with Rex hook
 category: "Core Concepts"
 order: 5
 
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 Lifecycle hooks in Rex allow you to run logic at specific points in a component's lifecycle. They provide a way to handle side effects, cleanup resources, and respond to component state changes.

@@ -4,7 +4,7 @@ description: "Optimizing Rex applications with computed state, memoization, and 
 category: "Advanced Features"
 order: 2
 
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 Memoization in Rex ensures that expensive computations are only performed when their dependencies change. This is crucial for building performant applications, especially when dealing with complex derived state, large lists, or expensive calculations.

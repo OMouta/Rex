@@ -4,7 +4,7 @@ description: "Understand Rex's reactivity system - how state changes automatical
 category: "Core Concepts"
 order: 4
 
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 Reactivity is the core principle that makes Rex powerful and intuitive. When data changes, the UI automatically updates to reflect those changes without manual intervention. This creates a direct connection between your application's state and its visual representation.

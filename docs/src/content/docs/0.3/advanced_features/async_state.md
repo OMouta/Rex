@@ -4,7 +4,7 @@ description: "Handling asynchronous operations, data fetching, and loading state
 category: "Advanced Features"
 order: 3
 
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 Rex provides powerful utilities for handling asynchronous operations such as API calls, data fetching, file loading, and other async tasks. The `useAsyncState` hook and related patterns make it easy to manage loading states, error handling, and data updates in a reactive way.

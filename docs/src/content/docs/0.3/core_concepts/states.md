@@ -4,7 +4,7 @@ description: "Comprehensive guide to Rex's reactive state system, including basi
 category: "Core Concepts"
 order: 1
 
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 States are the foundation of Rex's reactivity system. They represent data that can change over time and automatically trigger UI updates when modified. Rex provides several types of state for different use cases.

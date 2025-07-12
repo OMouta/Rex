@@ -4,7 +4,7 @@ description: "Building reactive lists with add, remove, and update functionality
 category: "Examples"
 order: 2
 
-lastUpdated: 2025-06-23
+lastUpdated: 2025-07-13
 ---
 
 This example demonstrates how to create a dynamic, reactive list in Rex with full CRUD (Create, Read, Update, Delete) functionality using Rex's new universal reactivity system and simplified list rendering. You'll learn about the `each` method for lists, automatic type conversion, and enhanced state helpers.
