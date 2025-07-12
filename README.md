@@ -6,7 +6,7 @@
 
 Build reactive, component-based user interfaces with Rex—a declarative UI framework inspired by React/VueJs patterns, designed specifically for Roblox and Luau.
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/OMouta/Rex)
+[![Version](https://img.shields.io/badge/version-0.2-blue.svg)](https://github.com/OMouta/Rex)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 </div>
@@ -421,6 +421,6 @@ Rex is [MIT licensed](LICENSE).
 
 ## Built with ❤️ by OMouta
 
-[Documentation](https://rex.tigas.dev) • [Examples](https://rex.tigas.dev/docs/0.2.0/examples/simple_counter) • [API Reference](https://rex.tigas.dev/docs/0.2.0/api_reference/state)
+[Documentation](https://rex.tigas.dev) • [Examples](https://rex.tigas.dev/docs/0.2/examples/simple_counter) • [API Reference](https://rex.tigas.dev/docs/0.2/api_reference/state)
 
 </div>

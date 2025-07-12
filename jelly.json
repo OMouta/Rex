@@ -9,10 +9,16 @@
   "realm": "shared",
   "include": [
     "src",
-    "src/**",
+    "src/Rex/**",
     "default.project.json",
     "jelly.json",
     "jelly-lock.json"
+  ],
+  "exclude": [
+    "docs",
+    "build",
+    "node_modules",
+    "src/Client"
   ],
   "scripts": {
     "build": "rojo build rex.project.json --output build/Rex.rbxm"

@@ -92,12 +92,27 @@ const { currentVersion = defaultVersion } = Astro.props;
         const target = e.target as HTMLSelectElement;
         const selectedVersion = target.value;
         
-        // Get current URL and add/update version parameter
-        const url = new URL(window.location.href);
-        url.searchParams.set('version', selectedVersion);
+        // Get current URL and extract the page/doc name
+        const currentPath = window.location.pathname;
         
-        // Navigate to the same page but with the version parameter updated
-        window.location.href = url.toString();
+        // Check if we're on a docs page
+        if (currentPath.startsWith('/docs/')) {
+          // Extract the doc path without the version (e.g., "introduction" from "/docs/0.2/introduction")
+          const pathParts = currentPath.split('/');
+          if (pathParts.length >= 4) {
+            // pathParts: ["", "docs", "0.2", "introduction"]
+            const docPath = pathParts.slice(3).join('/'); // "introduction"
+            
+            // Navigate to the same doc but with the new version
+            window.location.href = `/docs/${selectedVersion}/${docPath}`;
+          } else {
+            // If we're just at /docs/, go to the version's main page
+            window.location.href = `/docs/${selectedVersion}/introduction`;
+          }
+        } else {
+          // If not on a docs page, go to the version's introduction
+          window.location.href = `/docs/${selectedVersion}/introduction`;
+        }
       });
     }
 

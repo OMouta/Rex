@@ -17,5 +17,5 @@ export default defineConfig({
       theme: 'dark-plus',
       wrap: true
     }
-  }
+  },
 });

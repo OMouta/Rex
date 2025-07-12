@@ -29,6 +29,17 @@
     id="search-results" 
     class="absolute top-full left-0 right-0 mt-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-lg max-h-96 overflow-y-auto z-50 hidden"
   >
+    <!-- Version filter toggle -->
+    <div id="search-version-toggle" class="p-2 border-b border-zinc-800 hidden">
+      <button 
+        id="version-filter-btn"
+        class="flex items-center justify-between w-full px-3 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800 rounded transition-colors"
+      >
+        <span id="version-filter-text">...</span>
+        <span class="ml-2 text-xs text-zinc-500" id="version-filter-subtext">Toggle All Versions</span>
+      </button>
+    </div>
+    
     <div id="search-results-content" class="p-2">
       <!-- Results will be populated here -->
     </div>
@@ -59,9 +70,64 @@
     private documents: SearchIndexItem[] = [];
     private isLoaded = false;
     private loadingPromise: Promise<void> | null = null;
+    private currentVersion: string | null = null;
+    private searchAllVersions = false;
 
     constructor() {
+      this.detectCurrentVersion();
       this.initialize();
+    }
+
+    extractVersionFromSlug(slug: string): string {
+      // Extract version from slug format (e.g., "02/introduction" -> "0.2")
+      const parts = slug.split('/');
+      if (parts.length >= 1) {
+        const slugVersion = parts[0];
+        // Convert from slug format (02, 03, 10, etc.) to display format (0.2, 0.3, 1.0, etc.)
+        if (/^\d{2,}$/.test(slugVersion)) {
+          // Handle formats like "02" -> "0.2", "03" -> "0.3", "10" -> "1.0"
+          if (slugVersion.length === 2 && slugVersion.startsWith('0')) {
+            return `0.${parseInt(slugVersion.slice(1), 10)}`;
+          } else {
+            // For versions like "10", "11", etc.
+            const major = Math.floor(parseInt(slugVersion, 10) / 10);
+            const minor = parseInt(slugVersion, 10) % 10;
+            return `${major}.${minor}`;
+          }
+        }
+        // If it's already in the right format (0.2, 0.3, etc.), return as is
+        if (/^\d+\.\d+$/.test(slugVersion)) {
+          return slugVersion;
+        }
+      }
+      return slug.split('/')[0]; // Fallback to first part of slug
+    }
+
+    private detectCurrentVersion() {
+      // Extract version from current URL path
+      const path = window.location.pathname;
+      if (path.startsWith('/docs/')) {
+        const pathParts = path.split('/');
+        if (pathParts.length >= 3) {
+          const potentialVersion = pathParts[2];
+          // Match semantic version pattern (0.2, 0.3, 1.0, etc.)
+          if (/^\d+\.\d+$/.test(potentialVersion)) {
+            this.currentVersion = potentialVersion;
+          }
+        }
+      }
+    }
+
+    toggleSearchAllVersions() {
+      this.searchAllVersions = !this.searchAllVersions;
+      return this.searchAllVersions;
+    }
+
+    getSearchMode() {
+      return {
+        searchAllVersions: this.searchAllVersions,
+        currentVersion: this.currentVersion
+      };
     }
 
     private async initialize() {
@@ -119,8 +185,19 @@
         return [];
       }
 
-      const results = this.index.search(query, { limit: 10 });
-      return results.map(id => this.documents[id as number]).filter(Boolean);
+      const results = this.index.search(query, { limit: 20 });
+      let filteredResults = results.map(id => this.documents[id as number]).filter(Boolean);
+      
+      // Filter by current version if we're on a versioned page and not searching all versions
+      if (this.currentVersion && !this.searchAllVersions) {
+        filteredResults = filteredResults.filter(doc => {
+          // Convert slug version format to display version format
+          const docVersion = this.extractVersionFromSlug(doc.slug);
+          return docVersion === this.currentVersion;
+        });
+      }
+      
+      return filteredResults.slice(0, 10); // Limit to 10 results
     }
   }
 
@@ -130,6 +207,10 @@
     const searchResults = document.getElementById('search-results') as HTMLElement;
     const searchResultsContent = document.getElementById('search-results-content') as HTMLElement;
     const searchNoResults = document.getElementById('search-no-results') as HTMLElement;
+    const versionToggle = document.getElementById('search-version-toggle') as HTMLElement;
+    const versionFilterBtn = document.getElementById('version-filter-btn') as HTMLElement;
+    const versionFilterText = document.getElementById('version-filter-text') as HTMLElement;
+    const versionFilterSubtext = document.getElementById('version-filter-subtext') as HTMLElement;
     
     if (!searchInput || !searchResults || !searchResultsContent || !searchNoResults) {
       return;
@@ -137,6 +218,43 @@
 
     const searchManager = new SearchManager();
     let searchTimeout: number;
+
+    // Update version toggle visibility and text
+    const updateVersionToggle = () => {
+      const searchMode = searchManager.getSearchMode();
+      if (searchMode.currentVersion && versionToggle) {
+        versionToggle.classList.remove('hidden');
+        if (versionFilterText) {
+          versionFilterText.textContent = searchMode.searchAllVersions 
+            ? 'Searching all versions' 
+            : `Searching in v${searchMode.currentVersion}`;
+          
+          versionFilterSubtext.textContent = searchMode.searchAllVersions 
+            ? 'Click to toggle current version'
+            : 'Click to toggle all versions';
+
+        }
+      } else if (versionToggle) {
+        versionToggle.classList.add('hidden');
+      }
+    };
+
+    // Initialize version toggle
+    updateVersionToggle();
+
+    // Version filter toggle handler
+    if (versionFilterBtn) {
+      versionFilterBtn.addEventListener('click', () => {
+        searchManager.toggleSearchAllVersions();
+        updateVersionToggle();
+        
+        // Re-search with current query
+        const currentQuery = searchInput.value;
+        if (currentQuery.trim()) {
+          performSearch(currentQuery);
+        }
+      });
+    }
 
     // Debounced search function
     const performSearch = async (query: string) => {
@@ -167,11 +285,25 @@
 
       results.forEach(result => {
         const resultElement = document.createElement('a');
-        resultElement.href = result.url;
+        
+        // Convert slug to user-friendly URL using dynamic version detection
+        const slugVersion = result.slug.split('/')[0];
+        const displayVersion = searchManager.extractVersionFromSlug(result.slug);
+        let href = result.url;
+        
+        // Convert slug format to user-friendly URL format
+        if (/^\d{2,}$/.test(slugVersion)) {
+          href = `/docs/${result.slug.replace(`${slugVersion}/`, `${displayVersion}/`)}`;
+        }
+        
+        resultElement.href = href;
         resultElement.className = 'block p-3 hover:bg-zinc-800 rounded-lg transition-colors border-b border-zinc-800 last:border-b-0';
         
         resultElement.innerHTML = `
-          <div class="font-medium text-zinc-200 text-sm mb-1">${escapeHtml(result.title)}</div>
+          <div class="flex items-center justify-between mb-1">
+            <div class="font-medium text-zinc-200 text-sm">${escapeHtml(result.title)}</div>
+            <div class="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded">v${displayVersion}</div>
+          </div>
           <div class="text-xs text-zinc-400 mb-1">${escapeHtml(result.category)}</div>
           <div class="text-xs text-zinc-500 line-clamp-2">${escapeHtml(result.description)}</div>
         `;

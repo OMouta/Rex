@@ -12,11 +12,17 @@ export const categoryOrder = {
 };
 
 // Define versions with their status
+// Status can be 'stable', 'beta', 'prerelease', 'outdated' or 'experimental'
 export const versions = {
-  '0.2.0': {
-    label: '0.2.0',
-    status: 'beta',
-    statusLabel: 'Beta'
+  '0.2': {
+    label: '0.2',
+    status: 'stable',
+    statusLabel: 'stable'
+  },
+  '0.3': {
+    label: '0.3',
+    status: 'prerelease',
+    statusLabel: 'prerelease'
   }
 };
 
@@ -26,7 +32,6 @@ const docs = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    version: z.string().default('v1.0'),
     order: z.number().optional(),
     category: z.string().optional(),
     tags: z.array(z.string()).optional(),

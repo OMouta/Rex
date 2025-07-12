@@ -5,6 +5,7 @@ import Sidebar from '../components/Sidebar.astro';
 import TableOfContents from '../components/TableOfContents.astro';
 import Footer from '../components/Footer.astro';
 import { versions } from '../content/config';
+import { LATEST_VERSION } from '../utils/docs-links';
 
 // Define type for version info
 interface VersionInfo {
@@ -25,9 +26,7 @@ const { title, description, headings = [], version } = Astro.props;
 
 // Get the selected version from props first, then URL parameter, then default
 const urlParams = new URL(Astro.request.url).searchParams;
-const selectedVersion = version || urlParams.get('version') || 
-  Object.entries(versions).find(([_, info]) => (info as VersionInfo).isDefault)?.[0] || 
-  'v1.0';
+const selectedVersion = version || urlParams.get('version') || LATEST_VERSION;
 
 // Get version info
 const versionInfo = (versions as Record<string, VersionInfo>)[selectedVersion] || { 

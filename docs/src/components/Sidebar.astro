@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import { categoryOrder, versions } from '../content/config';
+import { convertVersionToSlug, convertSlugToFriendlyUrl } from '../utils/version-utils';
 
 export interface Props {
   selectedVersion?: string;
@@ -26,24 +27,15 @@ type CategoryOrderType = Record<string, number>;
 const urlParams = new URL(Astro.request.url).searchParams;
 const selectedVersion = propVersion || urlParams.get('version') || Object.entries(versions).find(
   ([_, versionInfo]) => (versionInfo as VersionInfo).isDefault
-)?.[0] || 'v1.0';
+)?.[0] || '0.2';
 
-// Filter docs by version (if version is specified in frontmatter)
+// Convert user-friendly version to slug version for filtering
+const slugVersion = convertVersionToSlug(selectedVersion);
+
+// Filter docs by version using the slug format
 const filteredDocs = docs.filter(doc => {
-  // Include documents with matching version
-  if (doc.data.version === selectedVersion) {
-    return true;
-  }
-  
-  // Include documents without a version only when viewing the default version
-  if (!doc.data.version) {
-    const isDefaultVersion = Object.entries(versions).find(
-      ([v, info]) => v === selectedVersion && (info as VersionInfo).isDefault
-    );
-    return !!isDefaultVersion;
-  }
-  
-  return false;
+  // Actual slugs are like "02/introduction", "03/introduction"
+  return doc.slug.startsWith(`${slugVersion}/`);
 });
 
 // Group docs by category and sort by order
@@ -89,7 +81,7 @@ const versionInfo = (versions as Record<string, VersionInfo>)[selectedVersion] |
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span>
-          {versionInfo.statusLabel} Documentation
+            {versionInfo.statusLabel.charAt(0).toUpperCase() + versionInfo.statusLabel.slice(1)} Documentation
         </span>
       </div>
       <div class="mt-1 text-xs opacity-80">
@@ -110,18 +102,8 @@ const versionInfo = (versions as Record<string, VersionInfo>)[selectedVersion] |
           </h3>
           <ul class="space-y-1">
             {groupedDocs[category].map((doc) => {
-              // Generate user-friendly URLs that match the format in the address bar
-              let href = `/docs/${doc.slug}`;
-              
-              // If the doc has a version and the slug contains a version-like folder,
-              // replace the slug's version part with the actual version from frontmatter
-              if (doc.data.version && doc.slug.includes('/')) {
-                const parts = doc.slug.split('/');
-                if (parts[0] && parts[0].match(/^v?\d+/)) {
-                  // Replace the slug version with the frontmatter version
-                  href = `/docs/${doc.data.version}/${parts.slice(1).join('/')}`;
-                }
-              }
+              // Generate user-friendly URLs with dots
+              let href = convertSlugToFriendlyUrl(doc.slug);
               
               // Add URL parameters if they exist
               if (urlParams.toString()) {

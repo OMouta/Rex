@@ -1,7 +1,7 @@
 // Utility for managing documentation version links
 // Update LATEST_VERSION when releasing new versions
 
-export const LATEST_VERSION = '0.2.0';
+export const LATEST_VERSION = '0.2';
 
 // Helper function to generate links to the latest documentation
 export function getLatestDocsUrl(page = 'introduction') {

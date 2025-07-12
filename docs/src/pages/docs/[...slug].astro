@@ -13,51 +13,59 @@ interface VersionInfo {
 
 export async function getStaticPaths() {
   const docs = await getCollection('docs');
+  console.log(docs.map(doc => doc.slug)); // Add this line
   
-  // Create paths for each doc
-  const paths = docs.map(doc => {
-    // Extract version from the doc slug if it starts with a version prefix (like v1.0/)
-    let docVersion = '';
-    const slugParts = doc.slug.split('/');
-    if (slugParts[0] && slugParts[0].startsWith('v')) {
-      docVersion = slugParts[0];
-    }
-    
-    // Use the version from frontmatter or directory structure
-    const version = doc.data.version || docVersion;
-    
-    return {
+  const paths = [];
+  
+  for (const doc of docs) {
+    // Add the original route (02/introduction, 03/introduction, etc.)
+    paths.push({
       params: { slug: doc.slug },
-      props: { doc, version }
-    };
-  });
-  
-  // Add additional paths for user-friendly URLs
-  // Astro converts v1.0 folder to v10 slug, but users expect v1.0 in URL
-  const additionalPaths = docs.map(doc => {
-    const version = doc.data.version;
-    if (version && doc.slug.includes('/')) {
-      // Create a user-friendly slug like "v1.0/examples" from "v10/examples"
-      const parts = doc.slug.split('/');
-      const friendlySlug = `${version}/${parts.slice(1).join('/')}`;
-      
-      return {
-        params: { slug: friendlySlug },
-        props: { doc, version }
-      };
+      props: { doc }
+    });
+    
+    // Add user-friendly routes with dots using dynamic version detection
+    const slugParts = doc.slug.split('/');
+    if (slugParts.length >= 2) {
+      const slugVersion = slugParts[0];
+      // Convert from slug format (02, 03, 10, etc.) to display format (0.2, 0.3, 1.0, etc.)
+      if (/^\d{2,}$/.test(slugVersion)) {
+        let displayVersion;
+        if (slugVersion.length === 2 && slugVersion.startsWith('0')) {
+          displayVersion = `0.${parseInt(slugVersion.slice(1), 10)}`;
+        } else {
+          const major = Math.floor(parseInt(slugVersion, 10) / 10);
+          const minor = parseInt(slugVersion, 10) % 10;
+          displayVersion = `${major}.${minor}`;
+        }
+        const friendlySlug = doc.slug.replace(`${slugVersion}/`, `${displayVersion}/`);
+        paths.push({
+          params: { slug: friendlySlug },
+          props: { doc }
+        });
+      }
     }
-    return null;
-  }).filter(Boolean);
+  }
   
-  return [...paths, ...additionalPaths];
+  return paths;
 }
 
-const { doc, version } = Astro.props;
+const { doc } = Astro.props;
 const { Content, headings } = await doc.render();
 
-// Get version from URL parameter if present, otherwise use the prop version
-const urlParams = new URL(Astro.request.url).searchParams;
-const selectedVersion = urlParams.get('version') || version;
+// Extract version from slug (first part) - handle both 02/03 and 0.2/0.3 formats
+const slugParts = doc.slug.split('/');
+// Normalize version: handles "02", "03", "0.2", "0.3", etc.
+function normalizeVersion(version: string) {
+  // If version matches "0.2", "0.3", etc., return as is
+  if (/^\d+\.\d+$/.test(version)) return version;
+  // If version matches "02", "03", etc., convert to "0.2", "0.3"
+  if (/^\d{2}$/.test(version)) return `0.${parseInt(version, 10)}`;
+  // Otherwise, return as is
+  return version;
+}
+const originalVersion = slugParts[0];
+const selectedVersion = normalizeVersion(originalVersion);
 ---
 
 <DocsLayout 
@@ -79,14 +87,12 @@ const selectedVersion = urlParams.get('version') || version;
             Last updated: {doc.data.lastUpdated.toLocaleDateString()}
           </div>
         )}
-        {doc.data.version && (
-          <div class="flex items-center">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-            </svg>
-            Version: {doc.data.version || version}
-          </div>
-        )}
+        <div class="flex items-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+          </svg>
+          Version: {selectedVersion}
+        </div>
       </div>
     </div>
     <Content />
