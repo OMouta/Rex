@@ -90,15 +90,13 @@ local function LikeButton(props)
         -- Text content
         Text = "", -- We'll use child elements instead
         
-        children = {
-            Rex("TextLabel") {
-                Size = UDim2.fromScale(1, 1),
-                BackgroundTransparency = 1,
-                Text = "❤️ " .. tostring(likes:get()),
-                TextColor3 = Color3.fromRGB(50, 50, 50),
-                TextScaled = true,
-                Font = Enum.Font.Gotham
-            }
+        Rex("TextLabel") {
+            Size = UDim2.fromScale(1, 1),
+            BackgroundTransparency = 1,
+            Text = "❤️ " .. tostring(likes:get()),
+            TextColor3 = Color3.fromRGB(50, 50, 50),
+            TextScaled = true,
+            Font = Enum.Font.Gotham
         }
     }
 end
@@ -131,21 +129,19 @@ local function LikeButton(props)
         BorderColor3 = Color3.fromRGB(200, 200, 200),
         Text = "",
         
-        children = {
-            Rex("TextLabel") {
-                Size = UDim2.fromScale(1, 1),
-                BackgroundTransparency = 1,
-                
-                -- Direct computed binding - no useComputed needed!
-                Text = Rex.useComputed(function()
-                    local icon = isLiked:get() and "❤️" or "🤍"
-                    return icon .. " " .. tostring(likes:get())
-                end, {likes, isLiked}),
-                
-                TextColor3 = Color3.fromRGB(50, 50, 50),
-                TextScaled = true,
-                Font = Enum.Font.Gotham
-            }
+        Rex("TextLabel") {
+            Size = UDim2.fromScale(1, 1),
+            BackgroundTransparency = 1,
+            
+            -- Direct computed binding - no useComputed needed!
+            Text = Rex.useComputed(function()
+                local icon = isLiked:get() and "❤️" or "🤍"
+                return icon .. " " .. tostring(likes:get())
+            end, {likes, isLiked}),
+            
+            TextColor3 = Color3.fromRGB(50, 50, 50),
+            TextScaled = true,
+            Font = Enum.Font.Gotham
         }
     }
 end
@@ -215,35 +211,19 @@ local function LikeButton(props)
         onLeave = function()
             isHovered:set(false)
         end,
+        
+        Rex("TextLabel") {
+            Size = UDim2.fromScale(1, 1),
+            BackgroundTransparency = 1,
             
-            -- Call optional callback
-            if props.onLike then
-                props.onLike(likes:get(), isLiked:get())
-            end
-        end,
-        
-        onHover = function()
-            isHovered:set(true)
-        end,
-        
-        onLeave = function()
-            isHovered:set(false)
-        end,
-        
-        children = {
-            Rex("TextLabel") {
-                Size = UDim2.fromScale(1, 1),
-                BackgroundTransparency = 1,
-                
-                Text = Rex.useComputed(function()
-                    local icon = isLiked:get() and "❤️" or "🤍"
-                    return icon .. " " .. tostring(likes:get())
-                end, {likes, isLiked}),
-                
-                TextColor3 = Color3.fromRGB(50, 50, 50),
-                TextScaled = true,
-                Font = Enum.Font.Gotham
-            }
+            Text = Rex.useComputed(function()
+                local icon = isLiked:get() and "❤️" or "🤍"
+                return icon .. " " .. tostring(likes:get())
+            end, {likes, isLiked}),
+            
+            TextColor3 = Color3.fromRGB(50, 50, 50),
+            TextScaled = true,
+            Font = Enum.Font.Gotham
         }
     }
 end

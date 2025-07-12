@@ -3,7 +3,7 @@ title: "Components"
 description: "Learn how to build reusable, composable components in Rex and patterns for component architecture and data flow."
 category: "Core Concepts"
 order: 5
-
+version: "0.2"
 lastUpdated: 2025-06-23
 ---
 
@@ -29,6 +29,75 @@ local myButton = Button {
     onClick = function() print("Clicked!") end
 }
 ```
+
+## Direct Children Syntax
+
+Rex supports a modern, concise syntax for adding child elements. Instead of wrapping children in a `children = {}` table, you can place Rex elements directly in the props table:
+
+### New Syntax (Recommended)
+
+```luau
+-- Direct children - clean and concise
+Rex("Frame") {
+    Size = UDim2.fromScale(1, 1),
+    BackgroundColor3 = Color3.fromRGB(50, 50, 70),
+    
+    Rex("TextLabel") {
+        Text = "Header",
+        Size = UDim2.fromScale(1, 0.5)
+    },
+    Rex("TextLabel") {
+        Text = "Footer",
+        Size = UDim2.fromScale(1, 0.5)
+    }
+}
+```
+
+### Traditional Syntax (Still Supported)
+
+```luau
+-- Traditional children syntax - still works
+Rex("Frame") {
+    Size = UDim2.fromScale(1, 1),
+    BackgroundColor3 = Color3.fromRGB(50, 50, 70),
+    children = {
+        Rex("TextLabel") {
+            Text = "Header",
+            Size = UDim2.fromScale(1, 0.5)
+        },
+        Rex("TextLabel") {
+            Text = "Footer",
+            Size = UDim2.fromScale(1, 0.5)
+        }
+    }
+}
+```
+
+### Mixed Syntax
+
+You can even combine both approaches - direct children will be appended to the `children` array:
+
+```luau
+Rex("Frame") {
+    Size = UDim2.fromScale(1, 1),
+    
+    -- Explicit children prop
+    children = {
+        Rex("TextLabel") { Text = "From children prop" }
+    },
+    
+    -- Direct children (will be combined with above)
+    Rex("TextLabel") { Text = "Direct child 1" },
+    Rex("TextLabel") { Text = "Direct child 2" }
+}
+```
+
+### Benefits
+
+- **Less boilerplate**: No need to wrap children in `children = {}`
+- **More readable**: Cleaner, JSX-like syntax
+- **Backward compatible**: Existing code continues to work
+- **Flexible**: Mix both styles as needed
 
 ## Component Props
 
