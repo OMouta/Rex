@@ -14,7 +14,36 @@ local ElementBuilder = {}
 -- Global registry for reactive bindings
 local reactiveBindings: {[Instance]: {() -> ()}} = {}
 
--- Enhanced element creation with key support
+-- Helper function to check if a value is a Rex element
+local function isRexElement(value: any): boolean
+	return typeof(value) == "table" and value.className ~= nil
+end
+
+-- Helper function to check if a value is a reactive state or reactive children
+local function isReactiveValue(value: any): boolean
+	return ElementBuilder.isRexState(value) or ElementBuilder.isReactiveChildren(value)
+end
+
+-- Helper function to check if a key is a special prop
+local function isSpecialProp(key: any, value: any): boolean
+	if key == "children" or key == "key" then
+		return true
+	end
+	
+	-- Check for Rex special props
+	if typeof(value) == "table" and value.__rexSpecialProp then
+		return true
+	end
+	
+	-- Check for event handlers (onXxx pattern)
+	if typeof(key) == "string" and key:match("^on%u") then
+		return true
+	end
+	
+	return false
+end
+
+-- Enhanced element creation with key support and direct children syntax
 function ElementBuilder.create(className: string, props: RexProps?): RexElement
 	local element: RexElement = {
 		className = className,
@@ -27,9 +56,60 @@ function ElementBuilder.create(className: string, props: RexProps?): RexElement
 	-- Extract key and children from props
 	if props then
 		element.key = props.key
-		local children = props.children or props[Props.Children]
-		if children then
-			element.children = children
+		
+		-- Extract explicit children
+		local explicitChildren = props.children or props[Props.Children]
+		
+		-- Extract direct children (unnamed Rex elements and reactive values in props)
+		local directChildren = {}
+		local hasDirectChildren = false
+		
+		for key, value in pairs(props) do
+			-- Skip named properties and special props
+			if typeof(key) == "number" then
+				-- Numbered keys could be direct children
+				if isRexElement(value) or isReactiveValue(value) then
+					table.insert(directChildren, value)
+					hasDirectChildren = true
+				end
+			elseif not isSpecialProp(key, value) then
+				-- For string keys, be conservative - only consider clearly non-property values
+				if isRexElement(value) then
+					table.insert(directChildren, value)
+					hasDirectChildren = true
+				end
+			end
+		end
+		
+		-- Combine explicit and direct children
+		if hasDirectChildren or explicitChildren then
+			if hasDirectChildren and explicitChildren then
+				-- Both explicit and direct children exist - combine them
+				if typeof(explicitChildren) == "table" and not isRexElement(explicitChildren) and not isReactiveValue(explicitChildren) then
+					-- explicitChildren is an array, append direct children
+					local combined = {}
+					for _, child in ipairs(explicitChildren :: {any}) do
+						table.insert(combined, child)
+					end
+					for _, child in ipairs(directChildren) do
+						table.insert(combined, child)
+					end
+					element.children = combined
+				else
+					-- explicitChildren is a single element or reactive, create array
+					local combined = {explicitChildren}
+					for _, child in ipairs(directChildren) do
+						table.insert(combined, child)
+					end
+					element.children = combined
+				end
+			elseif hasDirectChildren then
+				-- Only direct children
+				element.children = #directChildren == 1 and directChildren[1] or directChildren
+			else
+				-- Only explicit children
+				element.children = explicitChildren
+			end
 		end
 	end
 	
