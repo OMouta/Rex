@@ -16,6 +16,18 @@ Rex's `:each()` method provides a clean, reactive way to render lists from array
 ```luau
 local items = Rex.useState({"Apple", "Banana", "Cherry"})
 
+-- Modern syntax (recommended)
+Rex("ScrollingFrame") {
+    Rex("UIListLayout") {},
+    items:each(function(item, index)
+        return Rex("TextLabel") {
+            Text = `{index}: {item}`,
+            key = item -- Important for efficient updates
+        }
+    end)
+}
+
+-- Traditional syntax (still supported)
 Rex("ScrollingFrame") {
     children = {
         Rex("UIListLayout") {},

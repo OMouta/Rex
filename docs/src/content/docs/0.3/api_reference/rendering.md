@@ -11,9 +11,19 @@ Rex provides a declarative rendering system with support for children, fragments
 
 ## Rendering Elements
 
-Elements are created using `Rex(className)` syntax:
+Elements are created using `Rex(className)` syntax. Children can be added directly without the `children = {}` wrapper:
 
 ```luau
+-- Modern syntax (recommended)
+local element = Rex("Frame") {
+    Size = UDim2.fromScale(1, 1),
+    
+    Rex("TextLabel") {
+        Text = "Hello World"
+    }
+}
+
+-- Traditional syntax (still supported)
 local element = Rex("Frame") {
     Size = UDim2.fromScale(1, 1),
     children = {
@@ -31,29 +41,20 @@ Children define the nested elements within a Rex component. They can be static, 
 ### Static Children
 
 ```luau
-children = {
+-- Modern syntax (recommended)
+Rex("Frame") {
     Rex("TextLabel") { Text = "Header" },
     Rex("Frame") { Size = UDim2.fromScale(1, 0.5) },
     Rex("TextButton") { Text = "Click Me" }
 }
-```
 
-### Reactive Children with `:each()`
-
-The `:each()` method provides a clean syntax for rendering lists from array state:
-
-```luau
-local items = Rex.useState({"Apple", "Banana", "Cherry"})
-
-children = {
-    Rex("UIListLayout") {},
-    items:each(function(item, index)
-        return Rex("TextLabel") {
-            Text = `{index}: {item}`,
-            key = item, -- Important for efficient updates
-            LayoutOrder = index
-        }
-    end)
+-- Traditional syntax (still supported)
+Rex("Frame") {
+    children = {
+        Rex("TextLabel") { Text = "Header" },
+        Rex("Frame") { Size = UDim2.fromScale(1, 0.5) },
+        Rex("TextButton") { Text = "Click Me" }
+    }
 }
 ```
 
