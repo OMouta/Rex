@@ -1,12 +1,4 @@
-**Rex is no longer under active development and will not receive new features, bug fixes, or security updates.**  
-This repository is being archived and should **not** be used for new projects or depend on production UI.
-
----
-
-📌 **Looking for a maintained, community-supported UI framework? Try one of the following:**
-
-- **Vide** – a reactive Luau UI library inspired by Solid.js, fully Luau‑typecheckable and declarative. Stars ⭐: 150+ commits, ~175 stars.
-- **Fusion** – a reactive Luau UI + animation library with expressive instance creation and state management. Stars ⭐: 650+ crowns, active community.
+**Rex is currently undergoing a major internal change, please use another framework until this change is done**
 
 ---
 
